@@ -17,10 +17,8 @@ along with Atmosphere Autopilot.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.Linq;
-using System.Text;
-using UnityEngine;
 using System.Reflection;
+using UnityEngine;
 
 namespace AtmosphereAutopilot
 {
