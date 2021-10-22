@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-20 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 clear;
 model = aircraft_model();
 model.aero_model = false;         % stock model
@@ -44,7 +67,7 @@ for frame = 2:sim_length
     cntrl(:, frame) = [p_output, 0, 0];
     %cntrl(:, frame) = [0, r_output, 0];
     model.simulation_step(dt, cntrl(:, frame));
-    
+
     positions(:, frame) = model.position.';
     forwards(:, frame) = model.forward_vector.';
     rights(:, frame) = model.right_vector.';

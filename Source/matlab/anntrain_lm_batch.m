@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-20 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 function [new_weights, new_biases, old_meansqr] =...
     anntrain_lm_batch(inputs, input_weights, outputs, batch_size, batch_count,...
     weights, biases, mu, input_count, hidden_count)
@@ -35,7 +58,7 @@ function [new_weights, new_biases, old_meansqr] =...
             s2 .* a1(i,:);
         jacob(i, param_count) = s2;
     end
-    
+
     % collapse batches
     for i = 1:batch_count
         jacob_batch(i,:) = sum(jacob((i-1)*batch_size+1 : i*batch_size, :));
@@ -46,7 +69,7 @@ function [new_weights, new_biases, old_meansqr] =...
     jacob_batch(i+1:end,:) = jacob(i*batch_size+1: end, :);
     w_errors_batch(i+1:end) = weighted_errors(i*batch_size+1 : end);
     old_meansqr = meansqr(w_errors_batch);
-    
+
     % descend
     new_params = [weights, biases] -...
         (inv(mtimes(jacob_batch.',jacob_batch) +...

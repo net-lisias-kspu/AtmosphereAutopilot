@@ -1,3 +1,26 @@
+/*
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-20 Baranin Alexander aka Boris-Barboris
+
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0
+	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+*/
 #pragma once
 
 #include "matrix.cuh"
@@ -18,14 +41,14 @@ extern __constant__ float   d_stock_csurf_spd;
 extern float h_stock_csurf_spd;
 
 #ifdef __CUDA_ARCH__
-#define density d_density    
+#define density d_density
 #define aero_model d_aero_model
 #define spd_const d_spd_const
 #define gravity d_gravity
 #define far_timeConstant d_far_timeConstant
 #define stock_csurf_spd d_stock_csurf_spd
 #else
-#define density h_density    
+#define density h_density
 #define aero_model h_aero_model
 #define spd_const h_spd_const
 #define gravity h_gravity
@@ -93,17 +116,17 @@ struct __align__(8) pitch_model
     float dyn_pressure;                 // 168
     float2 pitch_tangent;               // 176
     float ang_acc;                      // 180
-    
+
     //int _stride;                        // 184
 };
 
-inline __device__ __host__ 
+inline __device__ __host__
 float clamp(float val, float lower, float upper)
 {
     return fmaxf(lower, fminf(upper, val));
 }
 
-inline __device__ __host__ 
+inline __device__ __host__
 float moveto(float cur_state, float des_state, float max_delta)
 {
     return cur_state + clamp(des_state - cur_state, -max_delta, max_delta);

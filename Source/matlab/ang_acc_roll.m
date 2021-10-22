@@ -1,21 +1,44 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-20 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 classdef ang_acc_roll < ang_acc_controller
     %UNTITLED2 Summary of this class goes here
     %   Detailed explanation goes here
-    
+
     methods (Access = public)
         function c = ang_acc_roll(mod)
             c@ang_acc_controller(mod);
             c.axis = 1;
         end
-        
+
         function cntrl = eval(obj, target, yaw_cntrl, dt)
             obj.target_acc = target;
             B = obj.model.roll_B;
             Bu = obj.model.roll_B_undelayed;
             A = obj.model.roll_A;
             Au = obj.model.roll_A_undelayed;
-            C = obj.model.roll_C;            
-            
+            C = obj.model.roll_C;
+
             if (~obj.model.aero_model)
                 % stock aero
                 Cu = C(1:2);
@@ -51,7 +74,7 @@ classdef ang_acc_roll < ang_acc_controller
                 yaw_csurf = aircraft_model.moveto_far(obj.model.csurf_state(3), yaw_cntrl, dt);
                 % get model prediction for next frame with same input as current csurf
                 cur_state = [obj.model.angular_vel(2), obj.model.csurf_state(2), 0.0].';
-                cur_input = [obj.model.csurf_state(2), yaw_csurf, obj.model.aoa(3)].';                
+                cur_input = [obj.model.csurf_state(2), yaw_csurf, obj.model.aoa(3)].';
                 out = A * cur_state + B * cur_input + C;
                 obj.predicted_acc = out(1);
                 acc_error = target - obj.predicted_acc;
@@ -69,6 +92,6 @@ classdef ang_acc_roll < ang_acc_controller
             end
         end
     end
-    
+
 end
 

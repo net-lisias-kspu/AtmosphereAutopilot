@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-20 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 %% initialize plane characteristics
 moi = 100.0;
 mass = 200.0;
@@ -123,7 +146,7 @@ while false
         ang_vel(iter+1) = x_sim(2);
         csurf(iter+1) = x_sim(3);
         input(iter+1) = u_sim;
-        
+
         desired_acc = -Kacc * x_sim(2);     % relaxate to v = 0.0
         % get predicted state derivative
         pr_dx = Ai * x_sim + Bi * u_sim + Ci;
@@ -138,22 +161,22 @@ while false
 
         % nonlinear pitch transfer
         cur_pitch_sim = cur_pitch_sim + (Cl * x_sim(1) / mass - g * cos(cur_pitch_sim)) / airspd * mpc_dt;
-        
+
         % check if we finished
         if abs(x_sim(2)) < v_eps
             under_zero = under_zero + 1;
             if under_zero > 10
-                break; 
+                break;
             end
         end
-        
+
         if abs(x_sim(1)) > res_max_aoa
             break;
         end
-        
+
         iter = iter+1;
         if iter > iter_limit
-            break; 
+            break;
         end
     end
     % decrease dyn_max_v if needed
@@ -199,13 +222,13 @@ for frame = 2:simul_length+1
     B(3,1) = 1.0 / csurf_exp_factor;
     C(1,1) = g * cos(cur_pitch) / airspd;
     C(2,1) = (k0 + k0_noise) / moi;
-    
+
     if double(frame) * dt > 7.0
         desired_v = 0.0;
     end
-    
+
     % ANGULAR VEL Controller
-    
+
     % update moderation values
     res_max_aoa = max_aoa;
     res_max_v = max_v;
@@ -218,7 +241,7 @@ for frame = 2:simul_length+1
     % find balanced angular velocity for steady turn on res_max_aoa
     steady_aoa_turn_v = (Cl * res_max_aoa / mass - g * cos(cur_pitch)) / airspd;
     res_max_v = min(res_max_v, steady_aoa_turn_v);
-    
+
     % linear scaling of v limit
     if desired_v - x(1) >= 0.0
         scaled_aoa = (res_max_aoa - x(1)) / (2.0 * res_max_aoa);
@@ -230,7 +253,7 @@ for frame = 2:simul_length+1
         dyn_desired_v = max(-dyn_max_v, desired_v);
         scaled_restrained_v = max(dyn_desired_v,...
             dyn_desired_v * scaled_aoa - res_max_v * (1.0 - scaled_aoa));
-    end    
+    end
     v_error = x(2) - scaled_restrained_v;
     % let's descend by quadratic function
     kacc_quadr = 0.2 * A(2,3) * B(3,1);
@@ -249,9 +272,9 @@ for frame = 2:simul_length+1
     %Kacc = sqrt(abs(B(2, 1) / v_error));
     %desired_acc = -Kacc * v_error;
     desired_acc = desired_deriv;
-    
+
     % ANGULAR ACC Controller
-    
+
     % analyze errors in model
     if ~first_cycle
         dx_bias = dx - pr_x;   % how big was x' prediction error
@@ -269,13 +292,13 @@ for frame = 2:simul_length+1
     pr_dx = pr_dx + delta_u * cntrl_auth;
     % apply control
     u = new_u;
-    
+
     % do calculations
     dx = (A * x + B * u + C) .* dt;
     x = x + dx;
     % nonlinear pitch transfer
     cur_pitch = cur_pitch + (Cl * x(1) / mass - g * cos(cur_pitch)) / airspd * dt;
-    
+
     % write to outputs
     aoa(frame) = x(1);
     ang_vel(frame) = x(2);

@@ -1,7 +1,7 @@
-/*
+ï»¿/*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-21 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-20 Baranin Alexander aka Boris-Barboris
+	Â© 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+	Â© 2015-20 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
 
@@ -21,20 +21,27 @@
 	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
 
 */
-#include "AAGpu.h"
+using System.Collections.Generic;
 
-#include "aoa_ctrl.cuh"
+using UnityEngine;
+using KSP.UI.Screens;
 
+using KSPe.Annotations;
+using Toolbar = KSPe.UI.Toolbar;
+using GUI = KSPe.UI.GUI;
+using GUILayout = KSPe.UI.GUILayout;
 
-struct thread_context
+namespace AtmosphereAutopilot
 {
-    pitch_model mdl;
-    ang_vel_p vel_c;
-    aoa_ctrl aoa_c;
-};
+	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
+	public class ToolbarController : MonoBehaviour
+	{
+		internal static KSPe.UI.Toolbar.Toolbar Instance => KSPe.UI.Toolbar.Controller.Instance.Get<ToolbarController>();
 
-#define AOAKERNELGPU
-#include "aoa_eval_kernel_common.cuh"
-
-#undef AOAKERNELGPU
-#include "aoa_eval_kernel_common.cuh"
+		[UsedImplicitly]
+		private void Start()
+		{
+			KSPe.UI.Toolbar.Controller.Instance.Register<ToolbarController>(Version.FriendlyName);
+		}
+	}
+}

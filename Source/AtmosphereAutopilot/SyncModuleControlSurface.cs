@@ -1,21 +1,26 @@
 ﻿/*
-Atmosphere Autopilot, plugin for Kerbal Space Program.
-Copyright (C) 2015-2016, Baranin Alexander aka Boris-Barboris.
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-20 Baranin Alexander aka Boris-Barboris
 
-Changes (c) 2019-2020 LisiasT
- 
-Atmosphere Autopilot is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-Atmosphere Autopilot is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with Atmosphere Autopilot.  If not, see <http://www.gnu.org/licenses/>. 
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0
+	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
 */
-
 using System;
 using UnityEngine;
 
@@ -70,6 +75,13 @@ namespace AtmosphereAutopilot
                         && part.transform.localRotation.x < p.transform.localRotation.x)
                     ;
             }
+        }
+
+        public override void OnLoad(ConfigNode node)
+        {
+            // Hack to recoer the ModuleControlSurface settings!
+            // TODO: check the loading vessel for the ConfigNode, then use it instead!
+            base.OnLoad(node);
         }
 
         public override void OnSave(ConfigNode node)

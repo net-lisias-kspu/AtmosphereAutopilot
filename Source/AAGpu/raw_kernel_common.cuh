@@ -1,3 +1,26 @@
+/*
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-20 Baranin Alexander aka Boris-Barboris
+
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0
+	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+*/
 #include "cuda_wrappers.cuh"
 #include "aircraftmodel.cuh"
 
@@ -7,10 +30,10 @@
 #define RAWEXECFUNCNAME raw_execute
 #define RAWCONTEXTPREFIX __shared__
 #else
-#define RAWPREFIX 
+#define RAWPREFIX
 #define RAWFUNCNAME raw_kernel_cpu
 #define RAWEXECFUNCNAME raw_execute_cpu
-#define RAWCONTEXTPREFIX 
+#define RAWCONTEXTPREFIX
 #endif // RAWKERNELGPU
 
 
@@ -39,7 +62,7 @@ RAWPREFIX void RAWFUNCNAME(
     vel_c.zero_init();
 
 
-    // initialize model    
+    // initialize model
     model.velocity.x = start_vel;
     model.moi = moi;
     model.rot_m = rot_m;
@@ -66,7 +89,7 @@ RAWPREFIX void RAWFUNCNAME(
         //float ctl = vel_c.eval(&model, input, 0.0f, dt);
         //ctl = ang_acc_p::eval_ac(model, input, dt);
         //model.simulation_step(dt, ctl);
-        model.simulation_step(dt, input);        
+        model.simulation_step(dt, input);
         input_output[i + 1] = input;
     }
     model.preupdate(dt);

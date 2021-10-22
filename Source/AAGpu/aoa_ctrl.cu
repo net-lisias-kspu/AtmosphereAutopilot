@@ -1,3 +1,26 @@
+/*
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-20 Baranin Alexander aka Boris-Barboris
+
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0
+	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+*/
 #include "aoa_ctrl.cuh"
 
 __device__ __host__ void aoa_ctrl::update_pars(pitch_model *mdl)
@@ -88,12 +111,12 @@ __device__ __host__ float aoa_ctrl::aoa_dyn_inverse(pitch_model *mdl, float des_
 
 # define AOAPCITER 2
 
-__device__ __host__ float aoa_ctrl::eval(pitch_model *mdl, ang_vel_p *vel_c, 
+__device__ __host__ float aoa_ctrl::eval(pitch_model *mdl, ang_vel_p *vel_c,
     float target, float target_deriv, float dt)
 {
     vel_c->preupdatev(mdl);
-    update_pars(mdl);    
-    target_aoa = clamp(target, vel_c->res_min_aoa, vel_c->res_max_aoa);    
+    update_pars(mdl);
+    target_aoa = clamp(target, vel_c->res_min_aoa, vel_c->res_max_aoa);
 
     float cur_aoa = mdl->aoa;
     //float prev_out_vel = output_vel;
@@ -146,10 +169,10 @@ __device__ __host__ float aoa_ctrl::eval(pitch_model *mdl, ang_vel_p *vel_c,
         ////if ((aoa_err - f3 * output_shift * dt) * aoa_err < 0.0f)
         ////    output_shift = 1.0f / f3 * aoa_err / dt;
 
-        ////float output_shift = get_output(vel_c, cur_aoa, target, dt);    
+        ////float output_shift = get_output(vel_c, cur_aoa, target, dt);
         ////float des_aoa_equil = get_equlibr_vel(mdl, target, mdl->csurf_state);
 
-    
+
         //float shift_ang_vel = mdl->ang_vel - cur_aoa_equilibr;
         float shift_ang_vel = output_vel - cur_aoa_equilibr;
         predicted_aoa = cur_aoa + (mdl->ang_vel - cur_aoa_equilibr) * dt;
@@ -256,7 +279,7 @@ __device__ __host__ void aoa_ctrl::preupdate(pitch_model *mdl)
     already_preupdated = true;
 }
 
-//__device__ __host__ float aoa_ctrl::get_output(ang_vel_p *vel_c, float cur_aoa, 
+//__device__ __host__ float aoa_ctrl::get_output(ang_vel_p *vel_c, float cur_aoa,
 //    float des_aoa, float dt)
 //{
 //    float error = des_aoa - cur_aoa;

@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-20 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 %% initialize plane characteristics
 moi = 100.0;
 mass = 200.0;
@@ -112,18 +135,18 @@ for frame = 2:simul_length+1
     A(4,4) = 1.0;
     B(2,1) = sas_torque * dt / moi + k2 * dt / moi * dt / csurf_exp_factor;
     B(3,1) = dt / csurf_exp_factor;
-    
+
     % get delta state vector
     desired = [0.0; desired_v; 0.0; 1.0];
     x_error = desired - x;
-    
+
     % do calculations
     u = - K * x;
     u = max(min(u, 1.0), -1.0);
     x = A * x + B * u;
     % nonlinear pitch transfer
     cur_pitch = cur_pitch + (Cl * x(1) / mass - g * cos(cur_pitch)) / airspd * dt;
-    
+
     % write to outputs
     aoa(frame) = x(1);
     ang_vel(frame) = x(2);

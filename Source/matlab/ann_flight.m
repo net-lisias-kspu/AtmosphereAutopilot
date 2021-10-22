@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-20 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 %% import telemetry
 run('import_telemetry');
 
@@ -62,7 +85,7 @@ cpu_time = 0;      % amount of availiable training iterations. When >= 1, we sho
 
 % MAIN CYCLE
 for frame = 1:length(global_inputs)
-    
+
     % update immediate buffer
     imm_buf_input(:,imm_buf_head) = global_inputs(:,frame);
     imm_buf_output(:,imm_buf_head) = global_outputs(:,frame);
@@ -71,7 +94,7 @@ for frame = 1:length(global_inputs)
     if imm_buf_head > imm_buf_size
         imm_buf_head = 1;
     end
-    
+
     % update generalization space
     gen_buf_upper = max(gen_buf_upper, global_inputs(:,frame).'); % stretch
     gen_buf_lower = min(gen_buf_lower, global_inputs(:,frame).');
@@ -100,7 +123,7 @@ for frame = 1:length(global_inputs)
     % try to apply symmetry assumption
     gen_index_symm = gen_buf_dims - 1 - gen_coord;
     gen_linear_index_symm = coord2index(gen_index_symm, gen_buf_dims);
-    % 
+    %
     if (gen_linear_index_symm ~= gen_linear_index) && isnan(gen_buf_output(1,gen_linear_index_symm))
         gen_buf_input(:,gen_linear_index_symm) = -gen_buf_input(:,gen_linear_index);
         gen_buf_output(:,gen_linear_index_symm) = -gen_buf_output(:,gen_linear_index);
@@ -108,7 +131,7 @@ for frame = 1:length(global_inputs)
     end
 
     % try to perform training iterations
-    cpu_time = cpu_time + cpu_ratio;    
+    cpu_time = cpu_time + cpu_ratio;
     if (cpu_time >= 1)
         % we'll iterate this frame so we need to prepare ANN training set
 
@@ -153,7 +176,7 @@ for frame = 1:length(global_inputs)
             input_weights  = zeros(1, imm_buf_count) + 1;
         end
     end
-        
+
     grad_min_iter = 0;
     while cpu_time >= 1
         % iterate here
@@ -195,7 +218,7 @@ for frame = 1:length(global_inputs)
     % current model acceleration
     ann_global_outputs(1,frame) = anneval_large(global_inputs(:,frame), weights,...
         biases, input_count, hidden_count);
-    ann_sqr_errors(frame) = min(new_sqr_err, old_sqr_err);    
+    ann_sqr_errors(frame) = min(new_sqr_err, old_sqr_err);
     mu_values(frame) = tansig(mu);
 end
 

@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-20 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 function [new_weights, new_biases, old_meansqr] =...
     anntrain_lm_hybrid(inputs, input_weights, outputs, batch_size, batch_weight,...
     weights, biases, mu, input_count, hidden_count)
@@ -32,16 +55,16 @@ function [new_weights, new_biases, old_meansqr] =...
             s2 .* a1(i,:);
         jacob(i, param_count) = s2;
     end
-    
+
     % collapse batch
     jacob(res_size,:) = sum(jacob(1:batch_size, :));
     errors = [errors, sum(errors(1:batch_size))];
-    
+
     % create weight matrix
     weight_mat = diag([input_weights, batch_weight]);
 
     old_meansqr = meansqr(errors .* [input_weights, batch_weight]);
-    
+
     % descend
     jtwj = jacob.' * weight_mat * jacob;
     A = jtwj + mu .* eye(param_count); %diag(diag(jtwj));

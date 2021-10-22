@@ -1,51 +1,74 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-21 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-20 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 classdef ang_vel_pitch_yaw < ang_vel_controller
-    
+
     properties (SetAccess = public)
         max_v_construction = 0.7;
         max_aoa = 15.0;
         max_g = 15.0;
         moderate_aoa = true;
         moderate_g = true;
-        
+
         stable = true;
         res_max_aoa = 0.1;
         res_min_aoa = -0.1;
         res_equilibr_v_upper = 0.0;
         res_equilibr_v_lower = 0.0;
-        
+
         max_input_aoa = 0.1;
         min_input_aoa = -0.1;
         max_input_v = 0.0;
         min_input_v = 0.0;
-        
+
         max_g_aoa = 0.1;
         min_g_aoa = -0.1;
         max_g_v = 0.0;
         min_g_v = 0.0;
-        
+
         max_aoa_v = 0.0;
         min_aoa_v = 0.0;
-        
+
         transit_max_v = 0.7;
         transit_v_mult = 0.5;
-        
+
         % get_desired_acc section
         quadr_Kp = 0.45;
         relaxation_k = -1.0;
         relaxation_Kp = 0.5;
         relax_count = 0;
-        
+
         kacc_quadr = 0.0;
-        
+
         already_preupdated = false;
     end
-    
+
     methods (Access = public)
         function c = ang_vel_pitch_yaw(ax, ac)
             c@ang_vel_controller(ac);
             c.axis = ax;
         end
-        
+
         function cntrl = eval(obj, target, target_deriv, dt)
             obj.target_vel = target;
             obj.update_pars();
@@ -58,33 +81,33 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                 obj.output_acc = acc_constrained;
             else
                 obj.output_acc = acc_unconst;
-            end            
+            end
             cntrl = obj.acc_c.eval(obj.output_acc, dt);
         end
-        
+
         function preupdate(obj)
             obj.update_pars()
             obj.already_preupdated = true;
         end
     end
-    
+
     methods (Access = private)
         function update_pars(obj)
             if (obj.already_preupdated)
                 obj.already_preupdated = false;
                 return
             end
-            
+
             rad_max_aoa = obj.max_aoa * pi / 180.0;
             obj.res_max_aoa = 100.0;
             obj.res_min_aoa = -100.0;
             obj.res_equilibr_v_upper = 0.0;
             obj.res_equilibr_v_lower = 0.0;
-            
+
             cur_aoa = obj.model.aoa(obj.axis + 1);
             abs_cur_aoa = abs(cur_aoa);
             moderated = false;
-            
+
             if (obj.axis == 0)
                 A = obj.model.pitch_A;
                 B = obj.model.pitch_B;
@@ -94,9 +117,9 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                 B = obj.model.yaw_B;
                 C = obj.model.yaw_C;
             end
-            
+
             % evaluate equilibrium regimes and moderation limits
-            
+
             % AoA section
             if (obj.moderate_aoa && obj.model.dyn_pressure > 100.0)
                 moderated = true;
@@ -118,7 +141,7 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                         obj.stable = true;
                         obj.max_input_aoa = eq_x(1, 1);
                         obj.max_input_v = eq_x(2, 1);
-                    end                    
+                    end
                     % get equilibrium aoa and angular_v for -1.0 input
                     eq_B = [A(1, 3) + A(1, 4) + B(1, 1) - C(1, 1); A(2, 3) + A(2, 4) + B(2, 1) - C(2, 1)];
                     eq_x = eq_A \ eq_B;
@@ -129,7 +152,7 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                         obj.min_input_aoa = eq_x(1, 1);
                         obj.min_input_v = eq_x(2, 1);
                     end
-                    
+
                     % max aoa section
                     eq_A = [A(1, 2), A(1, 3) + A(1, 4) + B(1, 1); A(2, 2), A(2, 3) + A(2, 4) + B(2, 1)];
                     eq_B = [-(A(1, 1) * rad_max_aoa + C(1, 1)); -(A(2, 1) * rad_max_aoa + C(2, 1))];
@@ -139,7 +162,7 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                     eq_X = eq_A \ eq_B;
                     obj.min_aoa_v = eq_X(1, 1);
                 end
-                
+
                 % let's apply moderation with controllability region
                 if (obj.max_input_aoa < obj.res_max_aoa)
                     obj.res_max_aoa = obj.max_input_aoa;
@@ -149,7 +172,7 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                     obj.res_min_aoa = obj.min_input_aoa;
                     obj.res_equilibr_v_lower = obj.min_input_v;
                 end
-                
+
                 % apply simple AoA moderation
                 if (rad_max_aoa < obj.res_max_aoa)
                     obj.res_max_aoa = rad_max_aoa;
@@ -160,8 +183,8 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                     obj.res_equilibr_v_lower = obj.min_aoa_v;
                 end
             end
-            
-            
+
+
             % G force section
             if (obj.moderate_g && obj.model.dyn_pressure > 100.0)
                 moderated = true;
@@ -182,7 +205,7 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                     eq_X = eq_A \ eq_B;
                     obj.min_g_aoa = eq_X(1, 1);
                 end
-                
+
                 % apply g-force moderation parameters
                 if (obj.max_g_aoa < 2.0 && obj.max_g_aoa > 0.0 && obj.min_g_aoa > -2.0 && obj.max_g_aoa > obj.min_g_aoa)
                     if (obj.max_g_aoa < obj.res_max_aoa)
@@ -195,7 +218,7 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                     end
                 end
             end
-            
+
             % transit velocity evaluation
             if ((abs_cur_aoa < rad_max_aoa * 1.5) && moderated)
                 transit_max_aoa = min(rad_max_aoa, obj.res_max_aoa);
@@ -215,7 +238,7 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                 if (isnan(dyn_max_v))
                     obj.transit_max_v = obj.max_v_construction;
                 else
-                    % for cases when static authority is too small to comply to long-term dynamics, 
+                    % for cases when static authority is too small to comply to long-term dynamics,
                     % we need to artificially increase it
                     if (dyn_max_v < obj.res_equilibr_v_upper * 1.2 || ...
                         dyn_max_v < -obj.res_equilibr_v_lower * 1.2)
@@ -225,9 +248,9 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
                     obj.transit_max_v = dyn_max_v;
                 end
             else
-                obj.transit_max_v = obj.max_v_construction;    
+                obj.transit_max_v = obj.max_v_construction;
             end
-            
+
             if (obj.model.aero_model) %if FAR
                 kacc = obj.quadr_Kp * (A(2, 3) * B(3, 1) + A(2, 4) * C(4, 1) + B(2, 1));
             else
@@ -235,12 +258,12 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
             end
             obj.kacc_quadr = abs(kacc);
         end
-        
+
         function desired_v = moderate(obj, des_v)
             % not implemented
             desired_v = des_v;
         end
-        
+
         function des_acc = get_desired_acc(obj, des_v, target_deriv, dt)
             cur_v = obj.model.angular_vel(obj.axis + 1);
             v_error = cur_v - des_v;
@@ -263,6 +286,6 @@ classdef ang_vel_pitch_yaw < ang_vel_controller
             des_acc = desired_deriv;
         end
     end
-    
+
 end
 

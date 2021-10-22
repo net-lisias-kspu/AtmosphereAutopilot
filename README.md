@@ -1,6 +1,10 @@
-# AtmosphereAutopilot /L Unofficial
+# AtmosphereAutopilot /L Unleashed
 
-Plugin for Kerbal Space Program. Unofficial Fork by Lisias.
+Plugin for Kerbal Space Program.
+
+[Unleashed](https://ksp.lisias.net/add-ons-unleashed/) fork by Lisias.
+
+**Maintainer's Note**: This is an incredibly complex and well done piece of software. Unless the original can't meet your needs by some reason as it doesn't for me, I strongly suggest you stick with the [upstream](https://forum.kerbalspaceprogram.com/index.php?/topic/124417-*/). :)
 
 
 ## In a Hurry
@@ -317,7 +321,8 @@ This work is licensewd under the [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.
 	- You recognize and respect any trademarks
 	- You don't impersonate the authors, neither redistribute a derivative that could be misrepresented as theirs.
 	- You credit the author and republish the copyright notices on your works where the code is used.
-	- You relicense (and fully comply) your works using GPL 2.0 (or later)
+	- You relicense (and fully comply) your works using GPL 3.0
+		- or, at your option, any later version 
 	- You don't mix your work with GPL incompatible works.
 
 See [NOTICE](./NOTICE) for further copyright and trademarks notices.
@@ -333,7 +338,7 @@ See [NOTICE](./NOTICE) for further copyright and trademarks notices.
 ## UPSTREAM
 
 * [Boris-Barboris](https://forum.kerbalspaceprogram.com/index.php?/profile/133181-boris-barboris/)
-	+ [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/124417-122-142-dlc-atmosphereautopilot-1510-looking-for-maintainer/)
+	+ [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/124417-*/)
 	+ [CurseForge](https://kerbal.curseforge.com/projects/atmosphereautopilot)
 	+ [SpaceDock](https://spacedock.info/mod/683/AtmosphereAutopilot)
 	+ [GitHub](https://github.com/Boris-Barboris/AtmosphereAutopilot)
