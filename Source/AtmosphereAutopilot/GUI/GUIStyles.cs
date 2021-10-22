@@ -24,6 +24,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+using GUI = KSPe.UI.GUI;
+using GUILayout = KSPe.UI.GUILayout;
+
 namespace AtmosphereAutopilot
 {
     /// <summary>

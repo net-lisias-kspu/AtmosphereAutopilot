@@ -27,6 +27,9 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
+using GUI = KSPe.UI.GUI;
+using GUILayout = KSPe.UI.GUILayout;
+
 namespace AtmosphereAutopilot
 {
     public sealed class GravityTurnFlyByWire : StateController
