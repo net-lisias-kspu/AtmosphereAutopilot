@@ -30,6 +30,7 @@ using KSP.UI.Screens;
 //using ToolbarWrapper;
 
 using Asset = KSPe.IO.Asset<AtmosphereAutopilot.AtmosphereAutopilot>;
+using Toolbar = KSPe.UI.Toolbar;
 
 namespace AtmosphereAutopilot
 {
@@ -279,7 +280,7 @@ namespace AtmosphereAutopilot
         [GlobalSerializable("use_neo_gui")]
         public bool use_neo_gui = false;
 
-        ApplicationLauncherButton launcher_btn;
+        Toolbar.Button launcher_btn;
 
         private Texture launcher_btn_textore_off = null;
         private Texture launcher_btn_textore_on = null;
@@ -325,15 +326,25 @@ namespace AtmosphereAutopilot
                     launcher_btn_textore_off = prefabs.LoadAsset<Texture>("AA_off");
                     launcher_btn_textore_on = prefabs.LoadAsset<Texture>("AA_on");
                 }
+
                 if (ApplicationLauncher.Ready)
                 {
-                    bool hidden;
-                    bool contains = ApplicationLauncher.Instance.Contains(launcher_btn, out hidden);
+                    bool contains = ToolbarController.Instance.Contains(launcher_btn);
                     if (!contains)
-                        launcher_btn = ApplicationLauncher.Instance.AddModApplication(
-                            OnALTrueNeo, OnALFalseNeo, OnALHover, OnALUnHoverNeo, null, null,
-                            ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
-                            launcher_btn_textore_off);
+                    { 
+                        launcher_btn = Toolbar.Button.Create(this
+                                , ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW
+                                , (Texture2D) launcher_btn_textore_on, (Texture2D) launcher_btn_textore_off
+                                , (Texture2D) launcher_btn_textore_on, (Texture2D) launcher_btn_textore_off
+                                , Version.FriendlyName
+                            );
+
+                        launcher_btn.Toolbar.Add(Toolbar.Button.ToolbarEvents.Kind.Active, new Toolbar.Button.Event(this.OnALTrueNeo, this.OnALFalseNeo));
+                        launcher_btn.Toolbar.Add(Toolbar.Button.ToolbarEvents.Kind.Hover, new Toolbar.Button.Event(this.OnALHover, this.OnALUnHoverNeo));
+
+                        ToolbarController.Instance.Add(launcher_btn);
+                    }
+                
                     if (ActiveVessel != null &&
                         autopilot_module_lists.ContainsKey(ActiveVessel) &&
                         autopilot_module_lists[ActiveVessel][typeof(TopModuleManager)] != null)
@@ -344,14 +355,22 @@ namespace AtmosphereAutopilot
             {
                 if (ApplicationLauncher.Ready)
                 {
-                    bool hidden;
-                    bool contains = ApplicationLauncher.Instance.Contains(launcher_btn, out hidden);
+                    bool contains = ToolbarController.Instance.Contains(launcher_btn);
                     if (!contains)
-                        launcher_btn = ApplicationLauncher.Instance.AddModApplication(
-                            OnALTrue, OnALFalse, OnHover, OnALUnHover, null, null,
-                            ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW,
-                            Asset.Texture2D.LoadFromFile("icons", "toolbar")
-                        );
+                    {
+                        Texture2D tex = Asset.Texture2D.LoadFromFile("icons", "toolbar");
+                        launcher_btn = Toolbar.Button.Create(this
+                                , ApplicationLauncher.AppScenes.FLIGHT | ApplicationLauncher.AppScenes.MAPVIEW
+                                , tex
+                                , tex
+                                , Version.FriendlyName
+                            );
+
+                        launcher_btn.Toolbar.Add(Toolbar.Button.ToolbarEvents.Kind.Active, new Toolbar.Button.Event(this.OnALTrue, this.OnALFalse));
+                        launcher_btn.Toolbar.Add(Toolbar.Button.ToolbarEvents.Kind.Hover, new Toolbar.Button.Event(this.OnHover, this.OnALUnHover));
+
+                        ToolbarController.Instance.Add(launcher_btn);
+                    }
                 }
             }
         }
@@ -361,7 +380,7 @@ namespace AtmosphereAutopilot
             // remove button
             if (ApplicationLauncher.Instance != null && launcher_btn != null)
             {
-                ApplicationLauncher.Instance.RemoveModApplication(launcher_btn);
+                ToolbarController.Instance.Destroy();
                 launcher_btn = null;
             }
         }
@@ -383,7 +402,7 @@ namespace AtmosphereAutopilot
 
         private void OnALUnHoverNeo()
         {
-            if (launcher_btn != null && launcher_btn.toggleButton.CurrentState == KSP.UI.UIRadioButton.State.False)
+            if (launcher_btn != null && launcher_btn.Active)
                 mainMenuClose();
         }
 
@@ -407,7 +426,7 @@ namespace AtmosphereAutopilot
 
         void OnALUnHover()
         {
-            if (!launcher_btn.toggleButton.Value)
+            if (!launcher_btn.Active)
                 applauncher.show_while_hover = true;
         }
 
@@ -444,7 +463,7 @@ namespace AtmosphereAutopilot
             GUIStyles.Process(toolbar_menu_object);
         }
 
-        public Vector3 GetAnchor()
+        public Vector3 GetAnchor() // FixMe: When the button is on a BlizzyBar, how to behave?
         {
             if (launcher_btn == null)
                 return Vector3.zero;
@@ -457,17 +476,14 @@ namespace AtmosphereAutopilot
         {
             if (launcher_btn == null)
                 return;
-            if (state)
-                launcher_btn.SetTexture(launcher_btn_textore_on);
-            else 
-                launcher_btn.SetTexture(launcher_btn_textore_off);
+            this.launcher_btn.Enabled = state;
         }
 
         public bool launcherButtonState
         {
             get
             {
-                return launcher_btn != null && launcher_btn.toggleButton.CurrentState == KSP.UI.UIRadioButton.State.True;
+                return launcher_btn != null && launcher_btn.Enabled;
             }
         }
 
