@@ -58,6 +58,6 @@ Global
 		Policies = $0
 		$0.TextStylePolicy = $1
 		$1.scope = text/plain
-		$1.TabsToSpaces = True
+		$1.FileWidth = 132
 	EndGlobalSection
 EndGlobal
