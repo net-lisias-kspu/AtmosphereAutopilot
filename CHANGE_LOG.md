@@ -1,5 +1,8 @@
 # AtmosphereAutopilot :: Change Log
 
+* 2022-0527: 1.5.19 (BorisBarboris) for KSP 1.12
+	+ Make use_breaks globally serializable.
+	+ Do not override manual breaks usage under target speed in ProgradeThrustController.
 * 2022-0118: 1.5.18 (BorisBarboris) for KSP 1.12
 	+ Fix errors when saving configs for vessel with peculiar names
 * 2021-0729: 1.5.17 (BorisBarboris) for KSP 1.12
