@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-2020 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 A = [4.44, 4.44, -4.24; 7.15, -7.15, -5.43; 2.39, -2.39, 2.28];
 x = [1.0; 1.0; 1.0];
 c = [1.0; 1.0; 1.0];
@@ -23,16 +46,16 @@ for i=1:length
         switched = 1;
         step = 1e-3;
     end
-        
+
     terr = A * x;
     grad_torque = zeros(sizex, 1);
     for j=1:sizea
         grad_torque = grad_torque + 2.0 * terr(j) * A(j,:)';
     end
-    
+
     sqrerr = unbalance_factor * dot(terr, terr);
     grad_torque = grad_torque * unbalance_factor;
-    
+
     for j=1:sizex
         if (x(j, 1) == 1.0) && (grad_torque(j, 1) < 0.0)
             grad_torque(j, 1) = 0.0;
@@ -41,12 +64,12 @@ for i=1:length
             grad_torque(j, 1) = 0.0;
         end
     end
-    
+
     trerr = (c .* x - ideal_thrusts) / sizex;
     sqrerr = sqrerr + dot(trerr, trerr);
-    
+
     grad_thrust = 2.0 * c .* trerr / sizex;
-    
+
     for j=1:sizex
         if (x(j, 1) == 1.0) && (grad_thrust(j, 1) < 0.0)
             grad_thrust(j, 1) = 0.0;
@@ -55,15 +78,15 @@ for i=1:length
             grad_thrust(j, 1) = 0.0;
         end
     end
-    
+
     d = dot(grad_thrust, grad_torque);
     if (d < 0.0)
         grad_thrust = grad_thrust - grad_torque * d / dot(grad_torque, grad_torque);
     end;
     %grad = step * grad_torque + grad_thrust;
-    
+
     grad = grad_torque + grad_thrust;
-    
+
     for j=1:sizex
         if (x(j, 1) == 1.0) && (grad(j, 1) < 0.0)
             grad(j, 1) = 0.0;
@@ -72,18 +95,18 @@ for i=1:length
             grad(j, 1) = 0.0;
         end
     end
-    
-    xold = x;    
+
+    xold = x;
     subiter = 0;
-    
+
     while (subiter < 30)
         x = xold - grad * step;
-        
+
         terr = A * x;
         sqrnew = unbalance_factor * dot(terr, terr);
         trerr = (c .* x - ideal_thrusts) / sizex;
         sqrnew = sqrnew + dot(trerr, trerr);
-        
+
         if (sqrnew < sqrerr)
             step = step * (1.0 + 0.5 * (adapt - 1));
             break;
@@ -93,12 +116,12 @@ for i=1:length
             step = 1e-20;
             break;
         end
-        
+
         subiter = subiter + 1;
     end
     step_history(1, i) = log10(step);
-    
-    
+
+
     proportion = 1.0;
     for j=1:sizex
         if (x(j, 1) > 1.0)

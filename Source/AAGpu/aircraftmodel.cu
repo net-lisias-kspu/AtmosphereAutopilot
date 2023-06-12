@@ -1,3 +1,26 @@
+/*
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-2020 Baranin Alexander aka Boris-Barboris
+
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0
+	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+*/
 #include "aircraftmodel.cuh"
 #include "math_functions.hpp"
 #include "math_constants.h"
@@ -58,7 +81,7 @@ __device__ __host__ void pitch_model::preupdate(float dt)
         A(1, 2) = K2 * (1.0f - dt / far_timeConstant);
         //A(0, 2) += 0.5f * dt * A(1, 2);  // account for second order
         B(1, 0) = sas_torque / moi + K2 * dt / far_timeConstant;
-        //B(0, 0) = 0.5f * dt * B(1, 0);  // account for second order        
+        //B(0, 0) = 0.5f * dt * B(1, 0);  // account for second order
         B(0, 0) += -Cl2 / velocity_magn * dt / far_timeConstant;
     }
     C(0, 0) = -(pitch_gravity_acc + Cl0) / velocity_magn;
@@ -74,7 +97,7 @@ __device__ __host__ void pitch_model::preupdate(float dt)
 
     // update aoa
     float2 fwd_vector = make_float2(cosf(pitch_angle), sinf(pitch_angle));
-    float rightv = fminf(1.0f, fmaxf(-1.0f, 
+    float rightv = fminf(1.0f, fmaxf(-1.0f,
         hypercross(normalize(velocity), fwd_vector)));
     float asin = asinf(rightv);
     if (dot(fwd_vector, velocity) >= 0.0f)
@@ -110,7 +133,7 @@ __device__ __host__ void pitch_model::simulation_step(float dt, float input)
 
     acc = acc + drag_acc + pitch_lift_acc;
     velocity = velocity + acc * dt;
-    position = position + velocity * dt;    
+    position = position + velocity * dt;
     if (spd_const)
         velocity = normalize(velocity) * speed;
 

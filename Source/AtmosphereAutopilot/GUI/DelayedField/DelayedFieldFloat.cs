@@ -1,6 +1,6 @@
 ﻿/*
 Atmosphere Autopilot, plugin for Kerbal Space Program.
-Copyright (C) 2015-2016, Baranin Alexander aka Boris-Barboris.
+Copyright (C) 2015-202016, Baranin Alexander aka Boris-Barboris.
  
 Atmosphere Autopilot is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -171,8 +171,14 @@ namespace AtmosphereAutopilot
 						if (dms.Length > 1) return;	// wait for NS/EW
 					}
 				}
-                float.TryParse(input_str, out val);
-			}
+                {
+                    float v;
+                    if (float.TryParse(input_str, out v))
+                        this.val = v;
+                    else
+                        this.input_str = this.val.ToString(format_str);
+                }
+            }
         }
 
 		public override string ToString()

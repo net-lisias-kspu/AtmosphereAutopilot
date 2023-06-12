@@ -21,39 +21,27 @@
 	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
 
 */
-using System;
-using System.Linq;
-using UnityEngine;
+using System.Collections.Generic;
 
+using UnityEngine;
+using KSP.UI.Screens;
+
+using KSPe.Annotations;
+using Toolbar = KSPe.UI.Toolbar;
 using GUI = KSPe.UI.GUI;
 using GUILayout = KSPe.UI.GUILayout;
 
 namespace AtmosphereAutopilot
 {
-    class OnlineLinTrainerWindow: GUIWindow
-    {
-        OnlineLinTrainer trainer;
+	[KSPAddon(KSPAddon.Startup.MainMenu, true)]
+	public class ToolbarController : MonoBehaviour
+	{
+		internal static KSPe.UI.Toolbar.Toolbar Instance => KSPe.UI.Toolbar.Controller.Instance.Get<ToolbarController>();
 
-        public OnlineLinTrainerWindow(OnlineLinTrainer trainer, string name, int wnd_id, Rect window) :
-            base(name, wnd_id, window)
-        {
-            this.trainer = trainer;
-        }
-
-        protected override void _drawGUI(int id)
-        {
-            GUILayout.BeginVertical();
-            AutoGUI.AutoDrawObject(trainer);
-            for (int i = 0; i < trainer.tasks.Count; i++)
-            {
-                GUILayout.Space(8.0f);
-                AutoGUI.AutoDrawObject(trainer.tasks[i]);
-                LinApprox linmodel = trainer.tasks[i].linmodel;
-                GUILayout.Label("linmodel:", GUIStyles.labelStyleLeft);
-                GUILayout.Label(String.Join(",", linmodel.pars.Select(v => v.ToString("G5")).ToArray()), GUIStyles.labelStyleCenter);
-            }
-            GUILayout.EndVertical();
-            GUI.DragWindow();
-        }
-    }
+		[UsedImplicitly]
+		private void Start()
+		{
+			KSPe.UI.Toolbar.Controller.Instance.Register<ToolbarController>(Version.FriendlyName);
+		}
+	}
 }

@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-2020 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 %% import telemetry
 delta_time = 0.025;
 run('import_telemetry');
@@ -63,7 +86,7 @@ cpu_time = 0;       % amount of availiable training iterations. When >= 1, we sh
 
 % MAIN CYCLE
 for frame = 1:length(global_inputs)
-    
+
     % update immediate buffer
     imm_buf_input(:,imm_buf_head) = global_inputs(:,frame);
     imm_buf_output(:,imm_buf_head) = global_outputs(:,frame);
@@ -72,11 +95,11 @@ for frame = 1:length(global_inputs)
     if imm_buf_head > imm_buf_size
         imm_buf_head = 1;
     end
-    
+
     % adapt time_decay
     max_global_output = max_global_output * (1 - max_global_output_decay * delta_time);
     max_global_output = max([max_global_output, abs(global_outputs(:,frame)), 0.01]);
-    
+
     % update generalization space
     % stretch gen space if needed
     gen_buf_upper = max(gen_buf_upper, global_inputs(:,frame).');
@@ -112,7 +135,7 @@ for frame = 1:length(global_inputs)
         gen_buf_output(:,gen_linear_index) = global_outputs(:,frame);
         gen_buf_birth(1,gen_linear_index) = frame * delta_time;   % remember the birth time
     end
-    
+
     % check linearization
     imm_lin_outputs = [zeros(imm_buf_count,1) + 1.0, imm_buf_input(:,1:imm_buf_count).'] * lin_params.';
     new_sqr_err = meansqr((imm_lin_outputs.' - imm_buf_output(1:imm_buf_count)) ./...
@@ -131,7 +154,7 @@ for frame = 1:length(global_inputs)
     if (cpu_time >= 1)
         % we'll iterate this frame so we need to prepare training data
         cur_time = frame * delta_time;
-        
+
         % get all not NaN generalization outputs
         gen_inputs = zeros(input_count, gen_buf_size);
         gen_outputs = zeros(1, gen_buf_size);
@@ -152,7 +175,7 @@ for frame = 1:length(global_inputs)
                     gen_buf_input(:,i) = NaN(input_count,1);
                     gen_buf_output(:,i) = NaN;
                     gen_buf_birth(:,i) = NaN;
-                end                
+                end
             end
         end
 
@@ -184,13 +207,13 @@ for frame = 1:length(global_inputs)
             input_weights  = decayed_imm_weight;
         end
     end
-    
+
     % update changed flags
     if frame > 1
         temp_changed = (global_inputs(:,frame) ~= global_inputs(:,frame-1)).';
         input_changed = input_changed | temp_changed;
     end
-    
+
     if cpu_time >= 1
         training_basis = size(training_input, 2);
         % prepare matrixes
@@ -202,7 +225,7 @@ for frame = 1:length(global_inputs)
             %else
             %    Y = Y - lin_params(i+1) .* training_input(i,:).';
             end
-        end 
+        end
         % solve linear weighted least squares
         x_w = X.' * diag(input_weights);
         new_lin_params = (x_w * X) \ (x_w * Y);
@@ -220,8 +243,8 @@ for frame = 1:length(global_inputs)
         cpu_time = cpu_time - 1.0;
     end
     lin_global_outputs(frame) = sum(lin_params .* [1.0, global_inputs(:,frame).']);
-    gen_count_stat(frame) = double(gen_count) / double(gen_buf_size);  
-    
+    gen_count_stat(frame) = double(gen_count) / double(gen_buf_size);
+
     cpu_time = cpu_time + cpu_ratio;
 end
 %% plot graphics

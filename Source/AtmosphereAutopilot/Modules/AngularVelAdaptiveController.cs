@@ -1,23 +1,29 @@
 ﻿/*
-Atmosphere Autopilot, plugin for Kerbal Space Program.
-Copyright (C) 2015-2016, Baranin Alexander aka Boris-Barboris.
- 
-Atmosphere Autopilot is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-Atmosphere Autopilot is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with Atmosphere Autopilot.  If not, see <http://www.gnu.org/licenses/>. 
-*/
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-2020 Baranin Alexander aka Boris-Barboris
 
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0 along
+	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+*/
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace AtmosphereAutopilot
@@ -151,6 +157,11 @@ namespace AtmosphereAutopilot
         [VesselSerializable("max_v_construction")]
         [AutoGuiAttr("Max v construction", true, "G6")]
         public float max_v_construction = 0.7f;
+        public string max_v_construction_as_text
+        {
+            set => this.max_v_construction = float.TryParse(value, out float v) ? v : this.max_v_construction;
+            get => this.max_v_construction.ToString("G6");
+        }
 
         protected virtual float process_desired_v(float des_v, bool user_input) { return des_v; }
 
@@ -620,10 +631,20 @@ namespace AtmosphereAutopilot
         [VesselSerializable("max_aoa")]
         [AutoGuiAttr("max AoA", true, "G6")]
         public float max_aoa = 15.0f;
+        public string max_aoa_as_text
+        {
+            set => this.max_aoa = float.TryParse(value, out float v) ? v : this.max_aoa;
+            get => this.max_aoa.ToString("G6");
+        }
 
         [VesselSerializable("max_g_force")]
         [AutoGuiAttr("max G-force", true, "G6")]
         public float max_g_force = 15.0f;
+        public string max_g_force_as_text
+        {
+            set => this.max_g_force = float.TryParse(value, out float v) ? v : this.max_g_force;
+            get => this.max_g_force.ToString("G8");
+        }
     }
 
     public sealed class PitchAngularVelocityController : PitchYawAngularVelocityController

@@ -1,6 +1,8 @@
-# Atmosphere Autopilot /L Unofficial
+# Atmosphere Autopilot /L Unleashed
 
 Plugin for Kerbal Space Program.
+
+[Unleashed](https://ksp.lisias.net/add-ons-unleashed/) fork by Lisias.
 
 
 ## Installation Instructions

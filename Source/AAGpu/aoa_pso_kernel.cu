@@ -1,3 +1,26 @@
+/*
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-2020 Baranin Alexander aka Boris-Barboris
+
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0
+	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+*/
 #include "AAGpu.h"
 
 #define AOAPSOKERNELGPU
@@ -53,14 +76,14 @@ void do_start_aoa_pso(
     // initialize particles
     matrix<AOAPARS, 1> *particles, *best_particles, *velocities;
     float *outputs, *best_outputs;
-    massalloc_cpu(prtcl_blocks * PARTICLEBLOCK, &particles, &best_particles, 
+    massalloc_cpu(prtcl_blocks * PARTICLEBLOCK, &particles, &best_particles,
         &velocities, &outputs, &best_outputs);
     for (int i = 0; i < prtcl_blocks * PARTICLEBLOCK; i++)
     {
         outputs[i] = 0.0f;
         best_outputs[i] = std::numeric_limits<float>::infinity();
     }
-    
+
     // randomize
     unsigned long long seed = (long long)std::time(nullptr);
     std::random_device rd;
@@ -72,7 +95,7 @@ void do_start_aoa_pso(
             particles[i](j, 0) = initial_span * rng(gen);
             best_particles[i](j, 0) = particles[i](j, 0);
             velocities[i](j, 0) = 0.2f * initial_span * rng(gen);
-        }        
+        }
 
     // allocate GPU memory
     cuwrap(cudaSetDevice, 0);
@@ -83,7 +106,7 @@ void do_start_aoa_pso(
     int *d_best_index;
 
     massalloc(model_count, &d_corpus);
-    massalloc(prtcl_blocks * PARTICLEBLOCK, &d_particles, &d_best_particles, 
+    massalloc(prtcl_blocks * PARTICLEBLOCK, &d_particles, &d_best_particles,
         &d_velocities, &d_outputs, &d_best_outputs);
     massalloc(1, &d_best_index);
 
@@ -164,7 +187,7 @@ void do_start_aoa_pso(
         copyGpuCpu(d_best_particles + best_index, &best_particle, 1);
         float best_target_func = 0.0f;
         copyGpuCpu(d_best_outputs + best_index, &best_target_func, 1);
-        
+
         // report to caller
         std::array<float, AOAPARS> best_particle_arr;
         for (int i = 0; i < AOAPARS; i++)
@@ -228,7 +251,7 @@ bool start_aoa_pso(
     delete aoa_pso_thread;
     stop_flag = false;
     aoa_pso_thread = new std::thread(do_start_aoa_pso,
-        dt, step_count, model_params, a_model, start_vel, keep_speed, 
+        dt, step_count, model_params, a_model, start_vel, keep_speed,
         prtcl_blocks, w, c1, c2, initial_span, aoa_divisions, exper_weights, repotrer,
         iter_limit);
     return true;

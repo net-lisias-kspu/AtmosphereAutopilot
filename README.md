@@ -1,14 +1,10 @@
-# AtmosphereAutopilot /L Unofficial
+# AtmosphereAutopilot /L Unleashed
 
 Plugin for Kerbal Space Program.
 
-Original author: Boris-Barboris. Unofficial Fork by Lisias.
+[Unleashed](https://ksp.lisias.net/add-ons-unleashed/) fork by Lisias.
 
-Contributors:
-
-* radistmorse (aka Morse on KSP forums) - Neo-GUI design and implementation.
-* CraigCottingham - Cruise flight and speed control GUI refactoring, coordinate input to waypoint mode.
-* Hotel26 - usability fixes for old-GUI Cruise flight waypoint control.
+**Maintainer's Note**: This is an incredibly complex and well done piece of software. Unless the original can't meet your needs by some reason as it doesn't for me, I strongly suggest you stick with the [upstream](https://forum.kerbalspaceprogram.com/index.php?/topic/124417-*/). :)
 
 
 ## In a Hurry
@@ -16,7 +12,11 @@ Contributors:
 * [Latest Release](https://github.com/net-lisias-kspu/AtmosphereAutopilot/releases)
     + [Binaries](https://github.com/net-lisias-kspu/AtmosphereAutopilot/tree/Archive)
 * [Source](https://github.com/net-lisias-kspu/AtmosphereAutopilot)
-* [Change Log](./CHANGE_LOG.md)
+* Documentation
+	+ [Project's README](https://github.com/net-lisias-kspu/AtmosphereAutopilot/blob/master/README.md)
+	+ [Install Instructions](https://github.com/net-lisias-kspu/AtmosphereAutopilot/blob/master/INSTALL.md)
+	+ [Change Log](./CHANGE_LOG.md)
+	+ [Known Issues](./KNOWN_ISSUES.md)
 
 
 ## General description
@@ -307,16 +307,7 @@ Hotkeys:
 
 ## Installation
 
-To install, place the GameData folder inside your Kerbal Space Program folder.
-
-**REMOVE ANY OLD VERSIONS OF THE PRODUCT BEFORE INSTALLING**.
-
-### Dependencies
-<!--
-* Hard Dependencies
-	* [KSP API Extensions/L](https://github.com/net-lisias-ksp/KSPAPIExtensions)
-->
-None at the moment. :)
+Detailed installation instructions are now on its own file (see the [In a Hurry](#in-a-hurry) section) and on the distribution file.
 
 ### Licensing
 This work is licensewd under the [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.txt). See [here](./LICENSE)
@@ -330,14 +321,24 @@ This work is licensewd under the [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.
 	- You recognize and respect any trademarks
 	- You don't impersonate the authors, neither redistribute a derivative that could be misrepresented as theirs.
 	- You credit the author and republish the copyright notices on your works where the code is used.
-	- You relicense (and fully comply) your works using GPL 2.0 (or later)
+	- You relicense (and fully comply) your works using GPL 3.0
+		- or, at your option, any later version 
 	- You don't mix your work with GPL incompatible works.
+
+See [NOTICE](./NOTICE) for further copyright and trademarks notices.
+
+
+### Contributors
+
+* radistmorse (aka Morse on KSP forums) - Neo-GUI design and implementation.
+* CraigCottingham - Cruise flight and speed control GUI refactoring, coordinate input to waypoint mode.
+* Hotel26 - usability fixes for old-GUI Cruise flight waypoint control.
 
 
 ## UPSTREAM
 
 * [Boris-Barboris](https://forum.kerbalspaceprogram.com/index.php?/profile/133181-boris-barboris/)
-	+ [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/124417-122-142-dlc-atmosphereautopilot-1510-looking-for-maintainer/)
+	+ [Forum](https://forum.kerbalspaceprogram.com/index.php?/topic/124417-*/)
 	+ [CurseForge](https://kerbal.curseforge.com/projects/atmosphereautopilot)
 	+ [SpaceDock](https://spacedock.info/mod/683/AtmosphereAutopilot)
 	+ [GitHub](https://github.com/Boris-Barboris/AtmosphereAutopilot)

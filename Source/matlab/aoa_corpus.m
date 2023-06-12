@@ -1,3 +1,26 @@
+%{
+    This file is part of Atmosphere Autopilot /L Unleashed
+    © 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+    © 2015-2020 Baranin Alexander aka Boris-Barboris
+
+    Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+    * GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+        or, at your option, any later version
+
+    Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+    it and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the License,
+    or (at your option) any later version.
+
+    Atmosphere Autopilot /L Unleashed is distributed in the hope that
+    it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+    You should have received a copy of the GNU General Public License 3.0
+    Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+}%
 function corpus = aoa_corpus()
     % this function generates array of models, that will be used in aoa controller synthesis
     % we shall create test crafts for both aerodynamic models
@@ -11,34 +34,34 @@ function corpus = aoa_corpus()
 
     map_pars = {aero_models, sas_torques, pitch_k0, pitch_k1, pitch_k2, velocities};
     iter_indexes = ones(length(map_pars), 1);
-    
+
     lda = @(corp, s, c, i) create_model(corp, s, c, i);
     [~, corpus] = iterate_space(lda, cell(1, 1), map_pars, iter_indexes, 0, 0);
 end
 
 function newcorpus = create_model(corpus, space, coords, index)
     model = aircraft_model();
-    
+
     aero_model = space{1}(1, coords(1));
     model.aero_model = aero_model;
-    
+
     sas = space{2}(1, coords(2));
     model.sas_torque(1, 1) = sas;
     model.sas_torque(1, 2) = sas;
     model.sas_torque(1, 3) = sas;
-    
+
     k0 = space{3}(1, coords(3));
     model.pitch_rot_m(1, 1) = k0;
     k1 = space{4}(1, coords(4));
     model.pitch_rot_m(1, 2) = k1;
     k2 = space{5}(1, coords(5));
     model.pitch_rot_m(1, 3) = k2;
-    
+
     vel = space{6}(1, coords(6));
     model.velocity(1, 2) = vel;
-    
+
     model.force_spd_maintain = true;
-    
+
     corpus{1, index} = model;
     newcorpus = corpus;
 end

@@ -1,7 +1,7 @@
-/*
+ï»¿/*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+	Â© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+	Â© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
 
@@ -17,19 +17,20 @@
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
 	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-	You should have received a copy of the GNU General Public License 3.0
-	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License 3.0 along
+	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
 
 */
-#pragma once
+using System.Collections.Generic;
 
-#define PARCOUNT(Inputs, Neurons, Outputs) (1 + Inputs) * Neurons + Outputs * (1 + Neurons)
-
-#define AOAINPUTS 4
-#define AOANEURONS 8
-#define AOAOUTPUTS 1
-
-//#define AOAPARS PARCOUNT(AOAINPUTS, AOANEURONS, AOAOUTPUTS)
-
-#define AOALINPARAMS 3
-#define AOAPARS 3
+namespace AtmosphereAutopilot
+{
+	public class ModuleManagerSupport : UnityEngine.MonoBehaviour
+	{
+		public static IEnumerable<string> ModuleManagerAddToModList()
+		{
+			string[] r = { typeof(ModuleManagerSupport).Namespace };
+			return r;
+		}
+	}
+}

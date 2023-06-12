@@ -1,3 +1,26 @@
+/*
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-2020 Baranin Alexander aka Boris-Barboris
+
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0
+	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
+*/
 #include "ang_vel_pitch.cuh"
 #include "ang_acc_pitch.cuh"
 
@@ -19,7 +42,7 @@ __device__ __host__ static void vel_update_pars(ang_vel_p &obj, pitch_model *mdl
 
     float cur_aoa = mdl->aoa;
     //float abs_cur_aoa = fabsf(cur_aoa);
-    
+
     // let's omit all moderated stuff
     if (obj.moderate_aoa)
     {
@@ -28,7 +51,7 @@ __device__ __host__ static void vel_update_pars(ang_vel_p &obj, pitch_model *mdl
         eq_A(0, 0) = mdl->A(0, 0);
         eq_A(0, 1) = mdl->A(0, 1);
         eq_A(1, 0) = mdl->A(1, 0);
-        eq_A(1, 1) = 0.0f;        
+        eq_A(1, 1) = 0.0f;
         matrix<2, 1> eq_B = colVec(
             -(mdl->A(0, 2) + mdl->B(0, 0) + mdl->C(0, 0)),
             -(mdl->A(1, 2) + mdl->B(1, 0) + mdl->C(1, 0)));
