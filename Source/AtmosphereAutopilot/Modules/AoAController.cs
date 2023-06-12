@@ -114,8 +114,9 @@ namespace AtmosphereAutopilot
         /// <param name="target_derivative">Desired AoA derivative</param>
         public float ApplyControl(FlightCtrlState cntrl, float target_value, float target_derivative)
         {
-            if (imodel.dyn_pressure <= (v_controller.moder_cutoff_ias * v_controller.moder_cutoff_ias) 
-                || !v_controller.moderate_aoa)
+            if (user_controlled && (
+                imodel.dyn_pressure <= (v_controller.moder_cutoff_ias * v_controller.moder_cutoff_ias)
+                || !v_controller.moderate_aoa))
             {
                 v_controller.user_controlled = true;
                 v_controller.ApplyControl(cntrl, 0.0f);

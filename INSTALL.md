@@ -35,11 +35,12 @@ The following file layout must be present after installation:
 				AtmosphereAutopilot.version
 		000_KSPe.dll
 		ModuleManager.dll
+		KSPUpgradeScriptFix.dll (only on KSP >= 1.8)
 		...
 	[PluginData]
-		[net.lisias.ksp]
-			[AtmosphereAutopilot]
-				Global_settings.txt
+			[net.lisias.ksp]
+				[AtmosphereAutopilot]
+					Global_settings.txt
 	KSP.log
 	PastDatabase.cfg
 	...
@@ -48,6 +49,8 @@ The following file layout must be present after installation:
 
 ### Dependencies
 
-* [KSP API Extensions/L](https://github.com/net-lisias-ksp/KSPAPIExtensions)
-	+ Not included
-
+* [KSP Extended](https://github.com/net-lisias-ksp/KSPe)
+	+ Not Included
+* [KSPUpgradeScriptFix](https://github.com/net-lisias-ksph/KSPUpgradeScriptFix)
+	+ Only for KSP >= 1.8
+	+ Not Included

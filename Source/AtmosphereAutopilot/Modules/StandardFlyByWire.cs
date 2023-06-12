@@ -45,7 +45,7 @@ namespace AtmosphereAutopilot
             im = modules[typeof(FlightModel)] as FlightModel;
         }
 
-        protected override void OnActivate() 
+        protected override void OnActivate()
         {
             pc.Activate();
             pc.user_controlled = true;
@@ -108,7 +108,7 @@ namespace AtmosphereAutopilot
 
         [GlobalSerializable("moderation_keycode")]
         [AutoHotkeyAttr("FBW moderation")]
-        static KeyCode moderation_keycode = KeyCode.O;
+        public static KeyCode moderation_keycode = KeyCode.O;
 
         [GlobalSerializable("rocket_mode_keycode")]
         [AutoHotkeyAttr("FBW rocket mode")]
