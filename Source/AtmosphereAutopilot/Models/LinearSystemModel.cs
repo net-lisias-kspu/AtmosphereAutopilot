@@ -17,8 +17,8 @@
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
 	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-	You should have received a copy of the GNU General Public License 3.0
-	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License 3.0 along
+	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
 
 */
 namespace AtmosphereAutopilot
