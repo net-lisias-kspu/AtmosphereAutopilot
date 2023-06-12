@@ -1,7 +1,7 @@
 ﻿/*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-21 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-20 Baranin Alexander aka Boris-Barboris
+	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
 

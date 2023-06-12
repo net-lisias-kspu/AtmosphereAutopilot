@@ -1,7 +1,7 @@
 ﻿/*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-21 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-20 Baranin Alexander aka Boris-Barboris
+	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
 
@@ -17,15 +17,15 @@
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
 	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-	You should have received a copy of the GNU General Public License 3.0
-	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+	You should have received a copy of the GNU General Public License 3.0 along
+	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
 
 */
 using System.Collections.Generic;
 
 namespace AtmosphereAutopilot
 {
-	public static class ModuleManagerSupport
+	public class ModuleManagerSupport : UnityEngine.MonoBehaviour
 	{
 		public static IEnumerable<string> ModuleManagerAddToModList()
 		{
