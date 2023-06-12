@@ -118,7 +118,7 @@ namespace AtmosphereAutopilot
 
         public override void ApplyControl(FlightCtrlState cntrl)
         {
-            if (vessel.LandedOrSplashed())
+            if (vessel.LandedOrSplashed)
                 return;
 
             if (thrust_c.spd_control_enabled)

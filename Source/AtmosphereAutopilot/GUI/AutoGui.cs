@@ -159,7 +159,7 @@ namespace AtmosphereAutopilot
         protected virtual void OnGUICustom() { }
 
         /// <summary>
-        // Executed on every OnGUI regardless of gui_shown or UIHidden
+        /// Executed on every OnGUI regardless of gui_shown or UIHidden
         /// </summary>
         protected virtual void OnGUICustomAlways() { }
 

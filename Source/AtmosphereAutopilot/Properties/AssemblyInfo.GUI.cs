@@ -36,4 +36,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion(AtmosphereAutopilot.Version.Number)]
 [assembly: AssemblyFileVersion(AtmosphereAutopilot.Version.Number)]
 [assembly: KSPAssembly("AtmosphereAutopilot.GUI", AtmosphereAutopilot.Version.major, AtmosphereAutopilot.Version.minor)]
-[assembly: KSPAssemblyDependency("AtmosphereAutopilot", AtmosphereAutopilot.Version.major, AtmosphereAutopilot.Version.minor)]
