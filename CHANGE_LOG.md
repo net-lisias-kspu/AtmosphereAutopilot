@@ -1,4 +1,4 @@
-# AtmosphereAutopilot :: Change Log
+# AtmosphereAutopilot /L Unleashed :: Change Log
 
 * 2022-0624: 1.6.0 (BorisBarboris) for KSP 1.12
 	+ Introduce AoA-Hold controller that holds desired AoA setpoint. Can be controlled by pitch hotkeys.

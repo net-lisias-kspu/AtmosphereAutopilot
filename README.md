@@ -2,7 +2,7 @@
 
 Plugin for Kerbal Space Program.
 
-Original author: Boris-Barboris. Unofficial Fork by Lisias.
+Original author: Boris-Barboris. Unleashed Fork by Lisias.
 
 
 ## In a Hurry
