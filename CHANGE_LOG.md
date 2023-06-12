@@ -1,5 +1,8 @@
 # AtmosphereAutopilot :: Change Log
 
+* 2021-0729: 1.5.17 (BorisBarboris) for KSP 1.12
+	+ handle multiple ModuleSurfaceFX modules in some engines during gimbal module order rearrangement.
+	+ compile against KSP dlls version 1.12.1
 * 2020-1223: 1.5.17rc1 (BorisBarboris) for KSP 1.11 PRE-RELEASE
 	+ Rebuild dll against KSP 1.11
 	+ update bundled Modulemanager
