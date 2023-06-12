@@ -1,5 +1,7 @@
 # AtmosphereAutopilot :: Change Log
 
+* 2022-0624: 1.6.0 (BorisBarboris) for KSP 1.12
+	+ Introduce AoA-Hold controller that holds desired AoA setpoint. Can be controlled by pitch hotkeys.
 * 2022-0527: 1.5.19 (BorisBarboris) for KSP 1.12
 	+ Make use_breaks globally serializable.
 	+ Do not override manual breaks usage under target speed in ProgradeThrustController.
