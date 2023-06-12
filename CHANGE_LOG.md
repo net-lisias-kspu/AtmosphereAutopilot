@@ -1,5 +1,8 @@
 # AtmosphereAutopilot :: Change Log
 
+* 2020-1223: 1.5.17rc1 (BorisBarboris) for KSP 1.11 PRE-RELEASE
+	+ Rebuild dll against KSP 1.11
+	+ update bundled Modulemanager
 * 2020-0125: 1.5.15.2 (Lisias) for 1.4 <= KSP <= 1.7.3
 	+ A very idiotic mistake on handling the pathname for the `Global_settings.cfg` file was detected and fixed. 
 * 2020-0119: 1.5.15.1 (Lisias) for 1.4 <= KSP <= 1.7.3
@@ -127,4 +130,3 @@ pseudo-FLC law for ascent of Cruise Flight autopilot
 	+ Control surfaces now correctly react to reversed airflow (flying backwards). 
 * 2015-1103: 1.0 (Boris-Barboris)
 	+ Initial release, containing single Autopilot - Standard Fly-By-Wire.
-
