@@ -1,5 +1,18 @@
 # AtmosphereAutopilot /L Unleashed :: Change Log
 
+* 2022-0624: 1.6.0 (BorisBarboris) for KSP 1.12
+	+ Introduce AoA-Hold controller that holds desired AoA setpoint. Can be controlled by pitch hotkeys.
+* 2022-0527: 1.5.19 (BorisBarboris) for KSP 1.12
+	+ Make use_breaks globally serializable.
+	+ Do not override manual breaks usage under target speed in ProgradeThrustController.
+* 2022-0118: 1.5.18 (BorisBarboris) for KSP 1.12
+	+ Fix errors when saving configs for vessel with peculiar names
+* 2021-0729: 1.5.17 (BorisBarboris) for KSP 1.12
+	+ handle multiple ModuleSurfaceFX modules in some engines during gimbal module order rearrangement.
+	+ compile against KSP dlls version 1.12.1
+* 2020-1223: 1.5.17rc1 (BorisBarboris) for KSP 1.11 PRE-RELEASE
+	+ Rebuild dll against KSP 1.11
+	+ update bundled Modulemanager
 * 2020-0125: 1.5.15.2 (Lisias) for 1.4 <= KSP <= 1.7.3
 	+ A very idiotic mistake on handling the pathname for the `Global_settings.cfg` file was detected and fixed. 
 * 2020-0119: 1.5.15.1 (Lisias) for 1.4 <= KSP <= 1.7.3
@@ -127,4 +140,3 @@ pseudo-FLC law for ascent of Cruise Flight autopilot
 	+ Control surfaces now correctly react to reversed airflow (flying backwards). 
 * 2015-1103: 1.0 (Boris-Barboris)
 	+ Initial release, containing single Autopilot - Standard Fly-By-Wire.
-
