@@ -1,5 +1,7 @@
 # AtmosphereAutopilot :: Change Log
 
+* 2022-0118: 1.5.18 (BorisBarboris) for KSP 1.12
+	+ Fix errors when saving configs for vessel with peculiar names
 * 2021-0729: 1.5.17 (BorisBarboris) for KSP 1.12
 	+ handle multiple ModuleSurfaceFX modules in some engines during gimbal module order rearrangement.
 	+ compile against KSP dlls version 1.12.1
