@@ -1,17 +1,25 @@
 ﻿/*
-Atmosphere Autopilot, plugin for Kerbal Space Program.
-Copyright (C) 2015-202016, Baranin Alexander aka Boris-Barboris.
- 
-Atmosphere Autopilot is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-Atmosphere Autopilot is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with Atmosphere Autopilot.  If not, see <http://www.gnu.org/licenses/>. 
+	This file is part of Atmosphere Autopilot /L Unleashed
+	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+	© 2015-2020 Baranin Alexander aka Boris-Barboris
+
+	Atmosphere Autopilot /L Unleashed is licensed as follows:
+
+	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
+		or, at your option, any later version
+
+	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
+	it and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the License,
+	or (at your option) any later version.
+
+	Atmosphere Autopilot /L Unleashed is distributed in the hope that
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+	You should have received a copy of the GNU General Public License 3.0 along
+	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
+
 */
 
 //
@@ -19,34 +27,31 @@ along with Atmosphere Autopilot.  If not, see <http://www.gnu.org/licenses/>.
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace AtmosphereAutopilot
 {
 
     /// <summary>
-    /// Struct for organizing delayed textfield input. Use DisplayLayout() to integrate into OnGUI code,
+    /// Class for organizing delayed textfield input. Use DisplayLayout() to integrate into OnGUI code,
     /// use OnUpdate() to account for time.
     /// </summary>
-    public struct DelayedField<#= Postfix #>
+    public class DelayedField<#= Postfix #>
     {
         /// <summary>
         /// Underlying <#= typename #> value to represent
         /// </summary>
-        <#= typename #> val;
+        protected <#= typename #> val;
 
         /// <summary>
         /// Time in seconds after input string was changed by user input
         /// </summary>
-        float time;
+        protected float time;
 
         /// <summary>
         /// true when we're counting time
         /// </summary>
-        bool changed;
+        protected bool changed;
 
         /// <summary>
         /// String that holds input value
@@ -63,7 +68,10 @@ namespace AtmosphereAutopilot
         /// </summary>
         /// <param name="init_value">Initial value</param>
         /// <param name="format"></param>
-        public DelayedField<#= Postfix #>(<#= typename #> init_value, string format)
+        public DelayedField<#= Postfix #>(
+            <#= typename #> init_value
+            , string format
+        )
         {
             val = init_value;
             time = 0.0f;
@@ -86,8 +94,15 @@ namespace AtmosphereAutopilot
                 {
                     changed = false;
                     time = 0.0f;
-                    input_str = value.ToString(format_str);
-                    val = value;
+                    try
+                    { 
+                        input_str = value.ToString(format_str);
+                        val = value;
+                    }
+                    catch (FormatException)
+                    {
+                        input_str = val.ToString(format_str);
+                    }
                 }
             }
         }
