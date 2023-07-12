@@ -1,5 +1,8 @@
 # AtmosphereAutopilot /L Unleashed :: Change Log
 
+* 2023-0709: 1.6.1 (BorisBarboris) for KSP 1.12
+	+ Add FPA (flight-path angle) vertical speed mode for Cruise Flight controller.
+	+ Handle input errors in GUI text fields better.
 * 2023-0612: 1.6.0.1 (LisiasT) for KSP >= 1.3.1
 	+ Catches up with upstream:
 		- 1.5.17
