@@ -1,12 +1,10 @@
 ﻿/*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+		© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+		© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
-
-	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
-		or, at your option, any later version
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
 
 	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
 	it and/or modify it under the terms of the GNU General Public License as
@@ -15,7 +13,7 @@
 
 	Atmosphere Autopilot /L Unleashed is distributed in the hope that
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	You should have received a copy of the GNU General Public License 3.0 along
 	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
@@ -167,7 +165,7 @@ namespace AtmosphereAutopilot
                 am += Vector3.Scale(rotated_moi, world_to_cntrl_part * part.rb.angularVelocity);
 
                 MOI += moi;
-                AM -= am;                   // minus because left-handed Unity                
+                AM -= am;                   // minus because left-handed Unity
             }
             angular_vel = Common.divideVector(AM, MOI);
             angular_vel -= world_to_cntrl_part * vessel.mainBody.angularVelocity;     // unity physics reference frame is rotating
@@ -235,7 +233,7 @@ namespace AtmosphereAutopilot
                 Quaternion delta = Quaternion.AngleAxis(ang_delta, cntrl_part_to_world * avg_angvel);
                 virtualRotation = Quaternion.Lerp(vessel.ReferenceTransform.rotation,
                     delta * virtualRotation, aoa_virtual_gain);
-                virtualRotation = virtualRotation.Normalize(); // TODO: On mainstream, this line is now virtualRotation.Normalize(); -- whats kinda of pointless, no? Check if it's an error
+                virtualRotation.Normalize();
             }
 
             angular_vel_prev = angular_vel;

@@ -1,12 +1,10 @@
 /*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+		Â© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+		Â© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
-
-	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
-		or, at your option, any later version
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
 
 	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
 	it and/or modify it under the terms of the GNU General Public License as
@@ -15,7 +13,7 @@
 
 	Atmosphere Autopilot /L Unleashed is distributed in the hope that
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	You should have received a copy of the GNU General Public License 3.0
 	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
@@ -43,10 +41,12 @@ float4 make_float4(const std::array<float, 4> &arr)
 void do_start_aoa_pso(
     float dt,
     int step_count,
-    const pitch_model_params &corpus,
+    const std::vector<pitch_model_params> &corpus,
     bool a_model,
     float start_vel,
     bool keep_speed,
+    std::array<std::tuple<float, float>, AOAINPUTS> input_norms,
+    std::array<std::tuple<float, float>, AOAOUTPUTS> output_norms,
     int prtcl_blocks,
     float w,
     float c1,
@@ -54,36 +54,49 @@ void do_start_aoa_pso(
     float initial_span,
     int aoa_divisions,
     std::array<float, 4> exper_weights,
-    report_dlg repotrer,
-    int iter_limit)
+    report_dlg repotrer)
 {
+    // initialize norms
+    matrix<AOAINPUTS, 2> in_norms;
+    for (int i = 0; i < AOAINPUTS; i++)
+    {
+        in_norms(i, 0) = std::get<0>(input_norms[i]);
+        in_norms(i, 1) = std::get<1>(input_norms[i]);
+    }
+    matrix<AOAOUTPUTS, 2> out_norms;
+    for (int i = 0; i < AOAOUTPUTS; i++)
+    {
+        out_norms(i, 0) = std::get<0>(output_norms[i]);
+        out_norms(i, 1) = std::get<1>(output_norms[i]);
+    }
+
     // initialize models
     pitch_model *models;
-    int model_count = 1;
+    int model_count = corpus.size();
     massalloc_cpu(model_count, &models);
     for (int i = 0; i < model_count; i++)
     {
         models[i].zero_init();
         models[i].velocity.x = start_vel;
-        models[i].moi = corpus.moi;
-        models[i].rot_m = make_float3(corpus.rot_model);
-        models[i].lift_m = make_float3(corpus.lift_model);
-        models[i].drag_m = make_float2(corpus.drag_model);
-        models[i].sas_torque = corpus.sas;
-        models[i].mass = corpus.mass;
+        models[i].moi = corpus[i].moi;
+        models[i].rot_m = make_float3(corpus[i].rot_model);
+        models[i].lift_m = make_float3(corpus[i].lift_model);
+        models[i].drag_m = make_float2(corpus[i].drag_model);
+        models[i].sas_torque = corpus[i].sas;
+        models[i].mass = corpus[i].mass;
     }
 
     // initialize particles
     matrix<AOAPARS, 1> *particles, *best_particles, *velocities;
     float *outputs, *best_outputs;
-    massalloc_cpu(prtcl_blocks * PARTICLEBLOCK, &particles, &best_particles,
+    massalloc_cpu(prtcl_blocks * PARTICLEBLOCK, &particles, &best_particles, 
         &velocities, &outputs, &best_outputs);
     for (int i = 0; i < prtcl_blocks * PARTICLEBLOCK; i++)
     {
         outputs[i] = 0.0f;
         best_outputs[i] = std::numeric_limits<float>::infinity();
     }
-
+    
     // randomize
     unsigned long long seed = (long long)std::time(nullptr);
     std::random_device rd;
@@ -95,7 +108,7 @@ void do_start_aoa_pso(
             particles[i](j, 0) = initial_span * rng(gen);
             best_particles[i](j, 0) = particles[i](j, 0);
             velocities[i](j, 0) = 0.2f * initial_span * rng(gen);
-        }
+        }        
 
     // allocate GPU memory
     cuwrap(cudaSetDevice, 0);
@@ -106,7 +119,7 @@ void do_start_aoa_pso(
     int *d_best_index;
 
     massalloc(model_count, &d_corpus);
-    massalloc(prtcl_blocks * PARTICLEBLOCK, &d_particles, &d_best_particles,
+    massalloc(prtcl_blocks * PARTICLEBLOCK, &d_particles, &d_best_particles, 
         &d_velocities, &d_outputs, &d_best_outputs);
     massalloc(1, &d_best_index);
 
@@ -126,26 +139,36 @@ void do_start_aoa_pso(
     int epoch = 0;
     int cycles_in_vain = 0;
     float global_best = std::numeric_limits<float>::infinity();
-    while (!stop_flag && epoch < iter_limit)
+    while (!stop_flag)
     {
+        // group blocks of 16 models in sequential kernel calls
         int m_index = 0;
         while (m_index < model_count)
         {
-            if (stop_flag)
-                goto cleanup_label;
-            // lauch kernel
-            aoa_pso_kernel<<<prtcl_blocks, PARTICLEBLOCK>>> (
-                d_corpus,
-                d_particles,
-                d_outputs,
-                m_index,
-                dt,
-                step_count,
-                aoa_divisions,
-                make_float4(exper_weights));
-            cuwrap(cudaGetLastError);
-            cuwrap(cudaDeviceSynchronize);
-            m_index++;
+            for (int sub = 0; sub < 16; sub++)
+            {
+                if (stop_flag)
+                    goto cleanup_label;
+                if (m_index >= model_count)
+                    break;
+                // lauch kernel
+                aoa_pso_kernel<<<prtcl_blocks, PARTICLEBLOCK>>> (
+                    d_corpus,
+                    d_particles,
+                    in_norms,
+                    out_norms,
+                    d_outputs,
+                    m_index,
+                    dt,
+                    step_count,
+                    aoa_divisions,
+                    make_float4(exper_weights));
+                cuwrap(cudaGetLastError);
+                cuwrap(cudaDeviceSynchronize);
+                m_index++;
+            }
+            // wait for batch execution completed
+            //cuwrap(cudaDeviceSynchronize);
         }
 
         aoa_pso_outer_kernel<<<prtcl_blocks, PARTICLEBLOCK>>>(
@@ -187,7 +210,7 @@ void do_start_aoa_pso(
         copyGpuCpu(d_best_particles + best_index, &best_particle, 1);
         float best_target_func = 0.0f;
         copyGpuCpu(d_best_outputs + best_index, &best_target_func, 1);
-
+        
         // report to caller
         std::array<float, AOAPARS> best_particle_arr;
         for (int i = 0; i < AOAPARS; i++)
@@ -232,10 +255,12 @@ void do_start_aoa_pso(
 bool start_aoa_pso(
     float dt,
     int step_count,
-    const pitch_model_params &model_params,
+    const std::vector<pitch_model_params> &corpus,
     bool a_model,
     float start_vel,
     bool keep_speed,
+    const std::array<std::tuple<float, float>, AOAINPUTS> &input_norms,
+    const std::array<std::tuple<float, float>, AOAOUTPUTS> &output_norms,
     int prtcl_blocks,
     float w,
     float c1,
@@ -243,17 +268,15 @@ bool start_aoa_pso(
     float initial_span,
     int aoa_divisions,
     const std::array<float, 4> &exper_weights,
-    report_dlg repotrer,
-    int iter_limit)
+    report_dlg repotrer)
 {
     if (aoa_pso_thread->joinable())
         return false;
     delete aoa_pso_thread;
     stop_flag = false;
     aoa_pso_thread = new std::thread(do_start_aoa_pso,
-        dt, step_count, model_params, a_model, start_vel, keep_speed,
-        prtcl_blocks, w, c1, c2, initial_span, aoa_divisions, exper_weights, repotrer,
-        iter_limit);
+        dt, step_count, corpus, a_model, start_vel, keep_speed, input_norms, output_norms,
+        prtcl_blocks, w, c1, c2, initial_span, aoa_divisions, exper_weights, repotrer);
     return true;
 }
 

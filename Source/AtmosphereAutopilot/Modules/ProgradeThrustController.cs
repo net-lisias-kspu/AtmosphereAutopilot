@@ -1,12 +1,10 @@
 ﻿/*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+		© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+		© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
-
-	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
-		or, at your option, any later version
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
 
 	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
 	it and/or modify it under the terms of the GNU General Public License as
@@ -15,7 +13,7 @@
 
 	Atmosphere Autopilot /L Unleashed is distributed in the hope that
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	You should have received a copy of the GNU General Public License 3.0 along
 	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
@@ -159,6 +157,7 @@ namespace AtmosphereAutopilot
         [AutoGuiAttr("break spd margin %", true, "G5")]
         public double break_margin = 10.0f;
 
+        [GlobalSerializable("use_breaks")]
         [AutoGuiAttr("Use breaks", true)]
         public bool use_breaks = true;
 
@@ -181,6 +180,8 @@ namespace AtmosphereAutopilot
 
         public Vector3d surfspd_dir;
 
+        private bool was_breaking_previously = true;
+
         /// <summary>
         /// Main control function
         /// </summary>
@@ -194,23 +195,39 @@ namespace AtmosphereAutopilot
             // apply breaks if needed
             if (use_breaks)
             {
-                if (vessel.LandedOrSplashed)
+                if (vessel.LandedOrSplashed())
                 {
                     // we're on ground
                     if (current_v > desired_v)
+                    {
                         vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, true);
+                        was_breaking_previously = true;
+                    }
                     else
-                        vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, false);
+                    {
+                        if (was_breaking_previously)
+                            vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, false);
+                        was_breaking_previously = false;
+                    }
                 }
                 else
                 {
                     // we're in flight
                     if (current_v > (1.0 + break_margin / 100.0) * desired_v)
+                    {
                         vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, true);
+                        was_breaking_previously = true;
+                    }
                     else
-                        vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, false);
+                    {
+                        if (was_breaking_previously)
+                            vessel.ActionGroups.SetGroup(KSPActionGroup.Brakes, false);
+                        was_breaking_previously = false;
+                    }
                 }
             }
+            else
+                was_breaking_previously = true;
 
             if (use_pid)
             {

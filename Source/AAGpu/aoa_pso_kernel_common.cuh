@@ -1,12 +1,10 @@
 /*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+		Â© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+		Â© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
-
-	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
-		or, at your option, any later version
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
 
 	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
 	it and/or modify it under the terms of the GNU General Public License as
@@ -15,7 +13,7 @@
 
 	Atmosphere Autopilot /L Unleashed is distributed in the hope that
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	You should have received a copy of the GNU General Public License 3.0
 	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
@@ -53,6 +51,8 @@ PREFIX void FUNCNAME(
 #endif // !AOAPSOKERNELGPU
     pitch_model *corpus,
     matrix<AOAPARS, 1> *particles,
+    matrix<AOAINPUTS, 2> input_norms,
+    matrix<AOAOUTPUTS, 2> output_norms,
     float *outputs,
     int model_index,
     float dt,
@@ -76,7 +76,9 @@ PREFIX void FUNCNAME(
     vel_c.moderate_aoa = true;
 
     // aoa_c
-    aoa_c.params = particles[pi];
+    aoa_c.net.input_norm = input_norms;
+    aoa_c.net.output_norm = output_norms;
+    aoa_c.net.init(particles[pi]);
 
     float result = 0.0f;
 
@@ -91,21 +93,18 @@ PREFIX void FUNCNAME(
     // experiment scheme:
     // we have aoa_divisions marks from min_aoa to max_aoa
     // we will perform experiments as transitions from current
-    // AoA mark to every other AoA mark.
+    // AoA mark to every other AoA mark larger than current.
     // Then we will perform special case experiments (zero AoA stability)
 
     int exper_count = 0;
-    for (int i = 0; i < aoa_divisions; i++)
-        for (int j = 0; j < aoa_divisions; j++)
+    for (int i = 0; i < aoa_divisions - 1; i++)
+        for (int j = i + 1; j < aoa_divisions; j++)
         {
-            if (i == j)
-                continue;
             float lres = 0.0f;
             float target_aoa = min_aoa + j * aoa_step;
             // local aircraft model
             model = corpus[model_index];
-            float start_aoa = min_aoa + i * aoa_step;
-            model.pitch_angle = start_aoa;
+            model.pitch_angle = min_aoa + i * aoa_step;
             // let's set initial control to equilibrium one
             model.preupdate(dt);
             model.csurf_state = aoa_ctrl::get_equlibr(&model, model.pitch_angle)(1, 0);
@@ -117,13 +116,9 @@ PREFIX void FUNCNAME(
                 model.simulation_step(dt, ctl);
                 float err = (model.aoa - target_aoa);
                 float diff = err * err;
-                if ((model.aoa - target_aoa) * (start_aoa - target_aoa) < 0.0f)
-                {
+                if (model.aoa > target_aoa)
                     diff *= weights.w;
-                    lres += diff * dt * step_count;
-                }
-                else
-                    lres += diff * dt * s;
+                lres += diff * dt * s;
             }
             exper_count++;
             result += lres;

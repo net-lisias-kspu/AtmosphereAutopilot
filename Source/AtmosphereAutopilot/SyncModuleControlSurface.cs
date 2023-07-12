@@ -1,12 +1,10 @@
 ﻿/*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+		© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+		© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
-
-	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
-		or, at your option, any later version
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
 
 	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
 	it and/or modify it under the terms of the GNU General Public License as
@@ -15,7 +13,7 @@
 
 	Atmosphere Autopilot /L Unleashed is distributed in the hope that
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	You should have received a copy of the GNU General Public License 3.0 along
 	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
@@ -44,30 +42,26 @@ namespace AtmosphereAutopilot
         protected bool was_deployed = false;
         protected bool already_checked = false;
 
-        public override void OnAwake()
-        {
-            base.OnAwake();
-            Log.dbg("It's me, Mario!!!");
-        }
-
         public override void OnStart(PartModule.StartState state)
         {
             base.OnStart(state);
 
             if (!HighLogic.LoadedSceneIsFlight) return;
-            if (already_checked) return;
-            already_checked = true;
 
-            if (usesMirrorDeploy) return;
+            if (this.already_checked) return;
+            this.already_checked = true;
+
+            if (this.usesMirrorDeploy) return;
+
             // This code is needed due savegames previous from the AA first installation (as well crafts, and also ones
             // downloaded or copied from other savegames) looses the condiguration when loaded with AA.
-            // Only savegames and crafts made after AA installation have their Control Surfaces settings restoned!
+            // Only savegames and crafts made after AA installation have their Control Surfaces settings restored!
             // Once this small inconvenience =P is fixed, this code can go away.
+            this.mirrorDeploy = false;
             if (part.symMethod == SymmetryMethod.Mirror &&
                 part.symmetryCounterparts != null &&
                 part.symmetryCounterparts.Count > 0)
             {
-                usesMirrorDeploy = true;
                 Part p = part.symmetryCounterparts[0];
                 this.mirrorDeploy =
                     (Mathf.Abs(part.transform.localRotation.w) < Mathf.Abs(p.transform.localRotation.w))
@@ -114,13 +108,15 @@ namespace AtmosphereAutopilot
 
             float spd_factor = TimeWarp.fixedDeltaTime * CSURF_SPD;
             float fwd_airstream_factor = Mathf.Sign(Vector3.Dot(vessel.ReferenceTransform.up, vessel.srf_velocity) + 0.1f);
-            float exp_spd_factor = useExponentialSpeed ? (actuatorSpeed / actuatorSpeedNormScale * TimeWarp.fixedDeltaTime) :  0.0f;
+            float exp_spd_factor = 0.0f;
+            if (useExponentialSpeed)
+                exp_spd_factor = actuatorSpeed / actuatorSpeedNormScale * TimeWarp.fixedDeltaTime;
 
             if (deploy)
             {
-                float normaction = action / deployAngle;
-                if (float.IsNaN(normaction))
-                    normaction = 0.0f;
+                float normdeflection = deflection / deployAngle;
+                if (float.IsNaN(normdeflection))
+                    normdeflection = 0.0f;
                 float target = deployInvert ? 1.0f : -1.0f;
                 target *= partDeployInvert ? -1.0f : 1.0f;
                 if (usesMirrorDeploy && mirrorDeploy) target *= -1.0f;
@@ -131,59 +127,59 @@ namespace AtmosphereAutopilot
                 action = deployAngle * target;
                 deflection = deflection + deployAngle * Common.Clampf(target - normdeflection, spd_factor);
                 ctrlSurface.localRotation = Quaternion.AngleAxis(deflection, Vector3.right) * neutral;
-                return;
             }
-
-            if (ignorePitch)
-                prev_pitch_normdeflection = 0.0f;
             else
             {
-                float axis_factor = Vector3.Dot(vessel.ReferenceTransform.right, baseTransform.right) * fwd_airstream_factor;
-                float pitch_factor = axis_factor * Math.Sign(Vector3.Dot(world_com - baseTransform.position, vessel.ReferenceTransform.up));
-                if (was_deployed)
-                    prev_pitch_normdeflection = Common.Clampf(prev_pitch_normdeflection, Mathf.Abs(pitch_factor));
-                float new_pitch_action = pitch_input * pitch_factor;
-                if (useExponentialSpeed)
-                    prev_pitch_normdeflection = Mathf.Lerp(prev_pitch_normdeflection, new_pitch_action, exp_spd_factor);
+                if (!ignorePitch)
+                {
+                    float axis_factor = Vector3.Dot(vessel.ReferenceTransform.right, baseTransform.right) * fwd_airstream_factor;
+                    float pitch_factor = axis_factor * Math.Sign(Vector3.Dot(world_com - baseTransform.position, vessel.ReferenceTransform.up));
+                    if (was_deployed)
+                        prev_pitch_normdeflection = Common.Clampf(prev_pitch_normdeflection, Mathf.Abs(pitch_factor));
+                    float new_pitch_action = pitch_input * pitch_factor;
+                    if (useExponentialSpeed)
+                        prev_pitch_normdeflection = Mathf.Lerp(prev_pitch_normdeflection, new_pitch_action, exp_spd_factor);
+                    else
+                        prev_pitch_normdeflection = prev_pitch_normdeflection + Common.Clampf(new_pitch_action - prev_pitch_normdeflection, spd_factor * Math.Abs(axis_factor));
+                }
                 else
-                    prev_pitch_normdeflection = prev_pitch_normdeflection + Common.Clampf(new_pitch_action - prev_pitch_normdeflection, spd_factor * Math.Abs(axis_factor));
-            }
+                    prev_pitch_normdeflection = 0.0f;
 
-            if (ignoreRoll)
-                prev_roll_normdeflection = 0.0f;
-            else
-            {
-                float axis_factor = Vector3.Dot(vessel.ReferenceTransform.up, baseTransform.up) * fwd_airstream_factor;
-                float roll_factor = axis_factor * Math.Sign(Vector3.Dot(vessel.ReferenceTransform.up,
-                    Vector3.Cross(world_com - baseTransform.position, baseTransform.forward)));
-                if (was_deployed)
-                    prev_roll_normdeflection = Common.Clampf(prev_roll_normdeflection, Mathf.Abs(roll_factor));
-                float new_roll_action = roll_input * roll_factor;
-                if (useExponentialSpeed)
-                    prev_roll_normdeflection = Mathf.Lerp(prev_roll_normdeflection, new_roll_action, exp_spd_factor);
+                if (!ignoreRoll)
+                {
+                    float axis_factor = Vector3.Dot(vessel.ReferenceTransform.up, baseTransform.up) * fwd_airstream_factor;
+                    float roll_factor = axis_factor * Math.Sign(Vector3.Dot(vessel.ReferenceTransform.up,
+                        Vector3.Cross(world_com - baseTransform.position, baseTransform.forward)));
+                    if (was_deployed)
+                        prev_roll_normdeflection = Common.Clampf(prev_roll_normdeflection, Mathf.Abs(roll_factor));
+                    float new_roll_action = roll_input * roll_factor;
+                    if (useExponentialSpeed)
+                        prev_roll_normdeflection = Mathf.Lerp(prev_roll_normdeflection, new_roll_action, exp_spd_factor);
+                    else
+                        prev_roll_normdeflection = prev_roll_normdeflection + Common.Clampf(new_roll_action - prev_roll_normdeflection, spd_factor * axis_factor);
+                }
                 else
-                    prev_roll_normdeflection = prev_roll_normdeflection + Common.Clampf(new_roll_action - prev_roll_normdeflection, spd_factor * axis_factor);
-            }
+                    prev_roll_normdeflection = 0.0f;
 
-            if (ignoreYaw)
-                prev_yaw_normdeflection = 0.0f;
-            else
-            {
-                float axis_factor = Vector3.Dot(vessel.ReferenceTransform.forward, baseTransform.right) * fwd_airstream_factor;
-                float yaw_factor = axis_factor * Math.Sign(Vector3.Dot(world_com - baseTransform.position, vessel.ReferenceTransform.up));
-                if (was_deployed)
-                    prev_yaw_normdeflection = Common.Clampf(prev_yaw_normdeflection, Mathf.Abs(yaw_factor));
-                float new_yaw_action = yaw_input * yaw_factor;
-                if (useExponentialSpeed)
-                    prev_yaw_normdeflection = Mathf.Lerp(prev_yaw_normdeflection, new_yaw_action, exp_spd_factor);
+                if (!ignoreYaw)
+                {
+                    float axis_factor = Vector3.Dot(vessel.ReferenceTransform.forward, baseTransform.right) * fwd_airstream_factor;
+                    float yaw_factor = axis_factor * Math.Sign(Vector3.Dot(world_com - baseTransform.position, vessel.ReferenceTransform.up));
+                    if (was_deployed)
+                        prev_yaw_normdeflection = Common.Clampf(prev_yaw_normdeflection, Mathf.Abs(yaw_factor));
+                    float new_yaw_action = yaw_input * yaw_factor;
+                    if (useExponentialSpeed)
+                        prev_yaw_normdeflection = Mathf.Lerp(prev_yaw_normdeflection, new_yaw_action, exp_spd_factor);
+                    else
+                        prev_yaw_normdeflection = prev_yaw_normdeflection + Common.Clampf(new_yaw_action - prev_yaw_normdeflection, spd_factor * Math.Abs(axis_factor));
+                }
                 else
-                    prev_yaw_normdeflection = prev_yaw_normdeflection + Common.Clampf(new_yaw_action - prev_yaw_normdeflection, spd_factor * Math.Abs(axis_factor));
+                    prev_yaw_normdeflection = 0.0f;
+
+                was_deployed = false;
+                deflection = action = ctrlSurfaceRange * authorityLimiter * 0.01f * Common.Clampf(prev_pitch_normdeflection + prev_roll_normdeflection + prev_yaw_normdeflection, 1.0f);
+                ctrlSurface.localRotation = Quaternion.AngleAxis(deflection, Vector3.right) * neutral;
             }
-
-            was_deployed = false;
-
-            deflection = action = ctrlSurfaceRange * authorityLimiter * 0.01f * Common.Clampf(prev_pitch_normdeflection + prev_roll_normdeflection + prev_yaw_normdeflection, 1.0f);
-            ctrlSurface.localRotation = Quaternion.AngleAxis(deflection, Vector3.right) * neutral;
         }
 #else
         protected override void CtrlSurfaceUpdate(Vector3 vel)

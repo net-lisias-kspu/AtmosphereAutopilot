@@ -1,12 +1,10 @@
 ﻿/*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+		© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+		© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
-
-	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
-		or, at your option, any later version
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
 
 	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
 	it and/or modify it under the terms of the GNU General Public License as
@@ -15,13 +13,15 @@
 
 	Atmosphere Autopilot /L Unleashed is distributed in the hope that
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	You should have received a copy of the GNU General Public License 3.0 along
 	with Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
 
 */
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 using UnityEngine;
 
 namespace AtmosphereAutopilot
@@ -157,14 +157,19 @@ namespace AtmosphereAutopilot
             public override void StartLoad()
             {
                 // replace ModuleControlSurface modules with SyncModuleControlSurface
+                string propellerRegex = @"Propeller|Blade";
                 var part_configs = GameDatabase.Instance.GetConfigNodes("PART");
                 foreach (var part in part_configs)
                 {
                     ConfigNode csurf_node;
                     if ((csurf_node = part.nodes.GetNode("MODULE", "name", "ModuleControlSurface")) != null)
                     {
-                        Log.info("part '{0}' config node contains ModuleControlSurface, replacing it", part.GetValue("name"));
-                        csurf_node.SetValue("name", "SyncModuleControlSurface", false);
+                        Match m = Regex.Match(part.GetValue("name"), propellerRegex, RegexOptions.IgnoreCase);
+                        if (!m.Success)
+                        {
+                            Log.warn("[AtmosphereAutopilot]: part '{0}' config node contains ModuleControlSurface, replacing it", part.GetValue("name"));
+                            csurf_node.SetValue("name", "SyncModuleControlSurface", false);
+                        }
                     }
                 }
                 ready = true;

@@ -1,12 +1,10 @@
 /*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+		Â© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+		Â© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
-
-	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
-		or, at your option, any later version
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
 
 	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
 	it and/or modify it under the terms of the GNU General Public License as
@@ -29,9 +27,9 @@
 #include "aoa_ctrl_constants.h"
 
 #ifdef AAGPU_EXPORTS
-#define AAGPU_EXPORTS_API __declspec(dllexport)
+#define AAGPU_EXPORTS_API __declspec(dllexport) 
 #else
-#define AAGPU_EXPORTS_API __declspec(dllimport)
+#define AAGPU_EXPORTS_API __declspec(dllimport) 
 #endif
 
 // Raw model evaluation without controllers
@@ -76,7 +74,9 @@ typedef void aoa_eval_prototype(
     float start_aoa,
     bool keep_speed,
     float target_aoa,
-    const std::array<float, AOALINPARAMS> &aoa_params,
+    const std::array<float, AOAPARS> &aoa_params,
+    const std::array<std::tuple<float, float>, AOAINPUTS> &input_norms,
+    const std::array<std::tuple<float, float>, AOAOUTPUTS> &output_norms,
     std::vector<float> &out_angvel,
     std::vector<float> &out_aoa,
     std::vector<float> &out_acc,
@@ -113,17 +113,19 @@ AAGPU_EXPORTS_API std::vector<pitch_model_params> generate_corpus(
     float cl2_min,
     float cl2_max);
 
-typedef void (__stdcall *report_dlg)(int epoch, float value, std::array<float, AOALINPARAMS> params);
+typedef void (__stdcall *report_dlg)(int epoch, float value, std::array<float, AOAPARS> params);
 
 #define PARTICLEBLOCK 256
 
 AAGPU_EXPORTS_API bool start_aoa_pso(
     float dt,
     int step_count,
-    const pitch_model_params &model_params,
+    const std::vector<pitch_model_params> &corpus,
     bool aero_model,
     float start_vel,
     bool keep_speed,
+    const std::array<std::tuple<float, float>, AOAINPUTS> &input_norms,
+    const std::array<std::tuple<float, float>, AOAOUTPUTS> &output_norms,
     int prtcl_blocks,
     float w,
     float c1,
@@ -131,7 +133,6 @@ AAGPU_EXPORTS_API bool start_aoa_pso(
     float initial_span,
     int aoa_divisions,
     const std::array<float, 4> &exper_weights,
-    report_dlg repotrer,
-    int iter_limit = 10000);
+    report_dlg repotrer);
 
 AAGPU_EXPORTS_API void stop_aoa_pso();

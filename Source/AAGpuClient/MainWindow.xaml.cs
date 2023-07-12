@@ -115,7 +115,7 @@ namespace AAGpuClient
 
 
     // Main application class
-    public partial class AppLogic
+    public class AppLogic
     {
         public AppLogic(MainWindow form)
         {
@@ -160,10 +160,11 @@ namespace AAGpuClient
                 () =>
                 {
                     if (best_aoa_params != null)
-                    {
                         aoaEvalExperiment.AoA_params = new List<float>(best_aoa_params);
-                        MessageBox.Show("Exporting " + string.Join(", ", aoaEvalExperiment.AoA_params));
-                    }
+                    aoaEvalExperiment.InputLowerBounds = new List<float>(aoaPSOContext.InputLowerBounds);
+                    aoaEvalExperiment.InputUpperBounds = new List<float>(aoaPSOContext.InputUpperBounds);
+                    aoaEvalExperiment.OutputLowerBounds = new List<float>(aoaPSOContext.OutputLowerBounds);
+                    aoaEvalExperiment.OutputUpperBounds = new List<float>(aoaPSOContext.OutputUpperBounds);
                 };
             exportAoAParamsCommand._canExecute = () => { return true; };
         }

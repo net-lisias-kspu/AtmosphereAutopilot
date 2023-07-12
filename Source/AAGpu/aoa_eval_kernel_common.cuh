@@ -1,12 +1,10 @@
 /*
 	This file is part of Atmosphere Autopilot /L Unleashed
-	© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
-	© 2015-2020 Baranin Alexander aka Boris-Barboris
+		Â© 2018-2023 Lisias T : http://lisias.net <support@lisias.net>
+		Â© 2015-2020 Baranin Alexander aka Boris-Barboris
 
 	Atmosphere Autopilot /L Unleashed is licensed as follows:
-
-	* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
-		or, at your option, any later version
+		* GPL 3.0 : https://www.gnu.org/licenses/gpl-3.0.txt
 
 	Atmosphere Autopilot /L Unleashed is free software: you can redistribute
 	it and/or modify it under the terms of the GNU General Public License as
@@ -15,7 +13,7 @@
 
 	Atmosphere Autopilot /L Unleashed is distributed in the hope that
 	it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-	warranty of	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 	You should have received a copy of the GNU General Public License 3.0
 	Atmosphere Autopilot /L Unleashed. If not, see <https://www.gnu.org/licenses/>.
@@ -30,10 +28,10 @@
 #define RAWEXECFUNCNAME aoa_execute
 #define RAWCONTEXTPREFIX __shared__
 #else
-#define RAWPREFIX
+#define RAWPREFIX 
 #define RAWFUNCNAME aoa_eval_kernel_cpu
 #define RAWEXECFUNCNAME aoa_execute_cpu
-#define RAWCONTEXTPREFIX
+#define RAWCONTEXTPREFIX 
 #endif // AOAKERNELGPU
 
 
@@ -53,7 +51,9 @@ RAWPREFIX void RAWFUNCNAME(
     float3 rot_m,
     float3 lift_m,
     float2 drag_m,
-    matrix<AOALINPARAMS, 1> aoa_pars,
+    matrix<AOAPARS, 1> aoa_pars,
+    matrix<AOAINPUTS, 2> input_norms,
+    matrix<AOAOUTPUTS, 2> output_norms,
     float start_vel,
     float start_aoa)
 {
@@ -68,7 +68,7 @@ RAWPREFIX void RAWFUNCNAME(
     aoa_c.zero_init();
 
 
-    // initialize model
+    // initialize model    
     model.velocity.x = start_vel;
     model.moi = moi;
     model.rot_m = rot_m;
@@ -86,27 +86,32 @@ RAWPREFIX void RAWFUNCNAME(
     vel_c.moderate_aoa = true;
 
     // aoa_c
-    aoa_c.params = aoa_pars;
+    //aoa_c.params = aoa_pars;
+    aoa_c.net.input_norm = input_norms;
+    aoa_c.net.output_norm = output_norms;
+    aoa_c.net.init(aoa_pars);
 
     // simulate
+    angvel_output[0] = model.ang_vel;
+    aoa_output[0] = model.aoa;
+    acc_output[0] = model.ang_acc;
+    csurf_output[0] = model.csurf_state;
     input_output[0] = 0.0f;
+    output_vel_output[0] = 0.0f;
     for (int i = 0; i < step_count; i++)
     {
         model.preupdate(dt);
-        angvel_output[i] = model.ang_vel;
-        aoa_output[i] = model.aoa;
-        acc_output[i] = model.ang_acc;
-        csurf_output[i] = model.csurf_state;
         float ctl = aoa_c.eval(&model, &vel_c, input, 0.0f, dt);
+        //ctl = ang_acc_p::eval_ac(model, input, dt);
+        //model.simulation_step(dt, ctl);
         model.simulation_step(dt, ctl);
-        output_vel_output[i + 1] = aoa_c.output_vel;
+        angvel_output[i + 1] = model.ang_vel;
+        aoa_output[i + 1] = model.aoa;
+        acc_output[i + 1] = model.ang_acc;
+        csurf_output[i + 1] = model.csurf_state;
         input_output[i + 1] = ctl;
+        output_vel_output[i + 1] = aoa_c.output_vel;
     }
-    model.preupdate(dt);
-    angvel_output[step_count] = model.ang_vel;
-    aoa_output[step_count] = model.aoa;
-    acc_output[step_count] = model.ang_acc;
-    csurf_output[step_count] = model.csurf_state;
 }
 
 
@@ -125,7 +130,9 @@ void RAWEXECFUNCNAME(
     float start_aoa,
     bool keep_speed,
     float input,
-    const std::array<float, AOALINPARAMS> &aoa_params,
+    const std::array<float, AOAPARS> &aoa_params,
+    const std::array<std::tuple<float, float>, AOAINPUTS> &input_norms,
+    const std::array<std::tuple<float, float>, AOAOUTPUTS> &output_norms,
     std::vector<float> &out_angvel,
     std::vector<float> &out_aoa,
     std::vector<float> &out_acc,
@@ -133,15 +140,27 @@ void RAWEXECFUNCNAME(
     std::vector<float> &out_input,
     std::vector<float> &out_vel_output)
 {
-    matrix<AOALINPARAMS, 1> aoa_params_mat;
-    for (int i = 0; i < AOALINPARAMS; i++)
+    matrix<AOAPARS, 1> aoa_params_mat;
+    for (int i = 0; i < AOAPARS; i++)
         aoa_params_mat(i, 0) = aoa_params[i];
+    matrix<AOAINPUTS, 2> in_norms;
+    for (int i = 0; i < AOAINPUTS; i++)
+    {
+        in_norms(i, 0) = std::get<0>(input_norms[i]);
+        in_norms(i, 1) = std::get<1>(input_norms[i]);
+    }
+    matrix<AOAOUTPUTS, 2> out_norms;
+    for (int i = 0; i < AOAOUTPUTS; i++)
+    {
+        out_norms(i, 0) = std::get<0>(output_norms[i]);
+        out_norms(i, 1) = std::get<1>(output_norms[i]);
+    }
 
 #ifdef AOAKERNELGPU
     float *d_angvel, *d_aoa, *d_acc, *d_csurf, *d_input, *d_out_vel;
 
     cuwrap(cudaSetDevice, 0);
-    massalloc(step_count + 1, &d_angvel, &d_aoa, &d_acc, &d_csurf,
+    massalloc(step_count + 1, &d_angvel, &d_aoa, &d_acc, &d_csurf, 
         &d_input, &d_out_vel);
 
     //cudaError r;
@@ -165,6 +184,8 @@ void RAWEXECFUNCNAME(
         make_float3(lift_model[0], lift_model[1], lift_model[2]),
         make_float2(drag_model[0], drag_model[1]),
         aoa_params_mat,
+        in_norms,
+        out_norms,
         start_vel,
         start_aoa);
 
@@ -204,6 +225,8 @@ void RAWEXECFUNCNAME(
         make_float3(lift_model[0], lift_model[1], lift_model[2]),
         make_float2(drag_model[0], drag_model[1]),
         aoa_params_mat,
+        in_norms,
+        out_norms,
         start_vel,
         start_aoa);
 #endif // AOAKERNELGPU

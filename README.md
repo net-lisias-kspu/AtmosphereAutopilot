@@ -19,15 +19,30 @@ Plugin for Kerbal Space Program.
 	+ [Known Issues](./KNOWN_ISSUES.md)
 
 
+## For developers
+
+### How to build:
+You need to build two dlls: AtmosphereAutopilot.UI.dll and AtmosphereAutopilot.dll. Both can be built from MS Visual studio on Windows using `AtmosphereAutopilot.sln`.   
+
+On Linux you need to run build.sh from root directory, wich requires the following packages:
+
+* `monodevelop` (look for msbuild binary availability)
+* `zip`
+
+Results will be in `./bin/Release` folder.
+
+
 ## General description
+
 Atmosphere autopilot is a modular atmospheric flight control system library. It's meant to be a foundation for multiple high-level programs - "Autopilots", wich will aid KSP player in one way or another, implying atmospheric flight. Autopilots are mutually exclusive - only one or none at all may be active at the active vessel at one given moment. They are provided by the library with means of automatic reflection-based serialization\deserialization and ugly, but lazy and customizable GUI interaction.
 
 Autopilots are modular entities. They can use basic, provided by main library components (like controllers and models), or they can define their own components and share them with other Autopilots. Those components will be called "Autopilot modules", or simply - "Modules". Every sealed child of AutopilotModule wich is not a StateController is treated by the library like a Module. Sealed StateController children are treated as Autopilots.
 
-Stock and FAR aerodynamics are supported. Plugin is dependent on ModuleManager by sarbian, and is shipped with Mini-AVC plugin by cybutek.
+Stock and FAR aerodynamics are supported.
 
 
 ## GUI concept
+
 AA icon is placed in Application Launcher toolbar during flight. It's contents will visualize a list of all Autopilots and Modules, created for active vessel. For every vessel "Autopilot Module Manager" will be created regardless. Turning on a "MASTER SWITCH" on it's window will create required context of Autopilots and Modules for this vessel. Under the master switch all Autopilots will be listed, for the user to choose one of them as an active one. Hotkey for Master switch is letter P, autoPilot. Can be changed in Global_settings.cfg file, Autopilot_module_manager section.
 
 Craft settings window contains shotrcuts to most used moderation and tuning parameters of the craft, as well as provides basic preset functionality. Presets are saved in "Global_settings.cfg"/settings_wnd/profiles section.
@@ -36,10 +51,12 @@ Each Autopilot and Module has it's own GUI window. All of them (even inactive on
 
 
 ## Neo-GUI
+
 Alternative, more condensed but less powerfull way of representing AppLauncher window can be turned on by setting AtmosphereAutopilot/use_neo_gui to _true_ in Global_settings.txt config file. It is read every scene change, so the shift can be made without shutting KSP down. While it's active, "Autopilot Module Manager" is still accessible using hotkeys. Standard GUI has logical priority over Neo-GUI.
 
 
 ## Hotkeys
+
 "Hotkey manager" window is placed into Application Launcher window list. It's contents are registered hotkeys, wich can be changed during runtime.
 
 There are two main hotkeys: 
@@ -49,8 +66,8 @@ There are two main hotkeys:
 
 Others are very module-specific and will not be described here.
 
-
 ## Craft implications and limitations
+
 "Control from here" part is facing prograde, with close-to-zero angle of attack bias. Planar symmetry is implied (left and right side of the plane are mirrored), as well as good degree of pitch-yaw and pitch-roll control isolation. Axial engine symmetry is strongly recommended. No wind mods are supported, as well as any mods, wich are changing control surface, rcs and engine gimbaling behaviour.
 
 **WARNING: DO NOT USE AEROBRAKES AS CONTROL SURFACES, USE THEM ONLY AS BRAKES!**
@@ -58,6 +75,7 @@ Others are very module-specific and will not be described here.
 ## Default Autopilots descriptions
 
 ### Standard Fly-By-Wire
+
 In general, FBW (Fly-By-Wire) is an abstraction Autopilot. It is designed to aid in player-controlled flight on generic (space)plane, providing a soft layer between user joystick\keyboard input and control surface outputs.
 
 Main goals:
@@ -80,7 +98,8 @@ Hotkeys:
 Speed control - throttle automation to maintain speed setpoint. Handeled by "Prograde thrust controller".
 
 ## Mouse Director
-Mouse Director (MD) is declarative autopilot, crafted with idea to let the user to define desired airspeed direction with camera position. Autopilot then tries to comply with this surface-relative velocity setpoint. MD is inherently-linear, so only relatively small angles of attack are allowed. All AoA moderations are forcefully turned on during it's work.
+
+Mouse Director (MD) is declarative autopilot, crafted with idea to let the user to define desired airspeed direction with camera position. Autopilot then tries to comply with this surface-relative velocity setpoint. MD is inherently-linear, so only relatively small angles of attack are allowed. All AoA moderations are forcefully turned on during it's operation.
 
 MD uses "Director controller", wich uses two AoA controllers: pitch "AoA controller" and yaw "Sideslip controller", and "Roll ang vel controller" for roll. Currently, planar asymmetry of a plane is not taken into account (sideslip noise is still too noticeable in zero-lift convergence problem), sideslip is always at zero setpoint. If your craft requires nonzero sideslip to fly straight, MD is not a very good solution right now, use FbW in the _rocket mode_.
 
@@ -89,29 +108,27 @@ Short GUI description:
 Speed control - throttle automation to maintain speed setpoint. Handeled by "Prograde thrust controller".
 
 ## Cruise Flight controller
-Cruise Flight (CF) is high-level autopilot, designet for travel automation. Just like MD, CF is inherently-linear, so only relatively small angles of attack are allowed. All AoA moderations are forcefully turned on during it's work.
+
+Cruise Flight (CF) is high-level autopilot, designet for travel automation. Just like MD, CF is inherently-linear, so only relatively small angles of attack are allowed. All AoA moderations are forcefully turned on during it's operation.
 
 CF uses "Director controller" for controlling velocity vector and "Prograde thrust controller" for throttle automation.
-
 Functions:
-
 * Simple leveling.
 * Baromethric height and airspeed control.
 * Primitive waypoint functionality, picking point on planet surface (mouse click) on the map and flying to it.
 
 Short GUI description:
-
 * _Level_ - simple leveling regime. Upon activation, CF will save surface-relative inclination of velocity and will follow it. If altitude is not set, will keep vertical speed at zero.
 * _Course_ - follows azimuth setpoint, set in field _desired course_. If altitude is not set, will keep vertical speed at zero. On high latitudes (>80 degrees) will switch to _Level_ mode.
 * _Waypoint_ - primitive waypoint following. Designed for pick-and-fly functionality. When activated, _pick waypoint_ button appears under mode tabs, as well as waypoint latitude-longtitude representation and distance to it in straight line (through planet core). Waypoint control is turned off when destination is closer than 200 meters to be followed by _Level_ mode activation.
 * _desired course_ - azimuth in degrees to follow in _Course_ mode.
 * _Speed control_ - throttle automation to maintain speed setpoint. Handeled by "Prograde thrust controller
-* _Vertical motion control_ - activate altitude or vertical speed control. Otherwise vertical speed is kept at zero.
+* _Vertical motion control_ - activate altitude or vertical speed or ascent angle (FPA) control. Otherwise vertical speed is kept at zero.
 * _Altitude_ - hold altitude, meters above sea level.
 * _Vertical speed_ - hold vertical speed, meters per second.
+* _FPA_ - flight-path angle, hold ascent/descent angle, degrees.
 
 "Advanced options" description:
-
 * _pseudo-FLC_ - toggle for pseudo-FLC (Flight Level Change) control law for ascend. Will force CF to respect speed setpoint and craft thrust parameters when choosing ascent angle.
 * _flc margin_ - default value 15 m/s. Span of pseudo-FLC algorithm relaxation region. Decrease if don't want to tolerate errors in speed. Algorithm will not converge below some minimal value, so be careful.
 * _strength mult_ - default value 0.75. Will be multiplied in the runtime on Director controller's strength to restrain maneuvers. Tune to achieve slover or faster behaviour.
@@ -125,20 +142,38 @@ Short GUI description:
 * _hotkey vertspeed snap_ - tweak to manage vertical speed snap to zero margin.
 
 Hotkeys:
-
 * "Pitch keys" - alter vertical motion setpoint, altitude or vertical speed (whatever is active at the moment).
 * "Yaw keys" - alter course setpoint.
 * "CF keys input mode" - default hotkey is _Right Alt_, toggles whether Pitch and yaw is used to control setpoints.
 * "CF vertical control" - toggles _Vertical motion control_.
 * "CF altitude\vertical speed" - toggles between _Altitude_ and _Vertical speed_ modes.
 
+## AoA-hold
+
+AoA-hold (AoAH) maintains pitch Angle-of-Attack setpoint. Pitch AoA moderation is forcefully turned on during it's operation.
+
+AoAH is very similar to Standard Fly-By-Wire. It uses "AoA controller" for pitch, roll is handled by "Roll ang vel controller" and yaw is handled by "Sideslip controller".
+
+Short GUI description:
+
+* _use keys_ - use pitch keys to control AoA setpoint.
+* _hotkey sensitivity_ - tweak to manage AoA setpoint change speed.
+* _Pitch moderation_ - if enabled, AoA will be limited by craft settings.
+* Speed control - throttle automation to maintain speed setpoint.
+	+ Handeled by "Prograde thrust controller".
+
+Hotkeys:
+* "Pitch keys" - alter pitch AoA setpoint.
+* "FBW moderation" - default hotkey for Moderation is letter O, mOderation.
+
+
 ## Default Modules descriptions
 
 ### Flight Model
+
 It is a fundamental craft analysis module. It performs motion and dynamics evaluation, as well as analysis of craft aerodynamics. VTOL engine balancing is also handled by Flight Model (though it will probably change in the future). This Module will probably be used by every single other Autopilot and module.
 
 Short GUI description (consult source code for more deatils and insight):
-
 * Three sections for three craft principal axes, each contains:
   * _ang vel_ - angular velocity of a craft as a mechanical system of rigid bodies, radians / second. Positive for pitch up, yaw right, roll right.
   * _ang acc_ - angular acceleration, produced by numerical diffirentiation.
@@ -168,14 +203,13 @@ Short GUI description (consult source code for more deatils and insight):
 * two vectors on engine torque linear estimations. They are used to adress gimbaling capabilities of a craft.
 
 Hotkeys:
-
 * "Thrust balancing" - toggles _balance engines_ button.
 
 ### Director controller
+
 Middle-level model-reference controller, follows a setpoint of surface velocity and acceleration vectors. Input: velocity vector and acceleration vector. Output: AoA, sideslip and roll angular velocity.
 
 Short GUI description:
-
 * _strength_ - default value 0.95. Measure of agressiveness of acceleration output of MD. Precise control multiplies output acceleration by the factor of 0.4. Serialized per vessel design.
 * _roll stop k_ - default value 1.0, used to prevent overshooting, magic number.
 * _angular error_ - error in radians between desired velocity vector and current one.
@@ -204,10 +238,10 @@ Short GUI description:
 * _desired sideslip_ - output to "Sideslip controller".
 
 ### Pitch, roll and yaw angular acceleration controllers
+
 Low level dynamics inversion angular acceleration controllers. Input: desired angular acceleration (and yaw output for roll controller). Output: pitch\roll\yaw control state.
 
 Short GUI description:
-
 * _Csurf output_ - current expected virtual control surface position, wich is usually lagged from control signal.
 * _write telemetry_ button - primitive logging capability for further matlab analysis. .csv logs are saved in KSP\Resources directory to be read by plotter.m viewer. It is a debug utility.
 * _desired acc_ - desired acceleration, passed to this controller from above.
@@ -217,11 +251,13 @@ Short GUI description:
 * _output_ - control state output, is passed to vessel in FlightCtrlState object.
 
 ### Pitch and yaw angular velocity controllers
+
 Model-reference controllers, that perform pitch and yaw angular velocity control with respect to moderation and controllability restrictions. Input: [-1, 1] user input or desired angular velocity. Output: desired angular acceleration, passed to angular acceleration controller.
 
 When navball is in surface mode, controller is dealing with surface-oriented reference frame. Zero input will keep zero angular velocity relative to the ground - useful on planes. In orbit navball mode inertial reference frame will be used - usefull for spacecrafts. Precision mode (CAPS LOCK) multiplies input by the factor of 0.33 (_precision mode factor_ option in global_settings.txt) to provide more precise control, or to aid with control on high physical warp regimes. To ignore precision mode, unser _watch precision mode_ toggle in respected ang vel controllers.
 
 Short GUI description:
+
 * _Auto trim_ button - turn on of you want control trim to preserve after controller shutdown. Off by default.
 * _max\min input aoa_ - estimated maximum angle of attack (radians), achievable by locking control to 1.0 or -1.0. When craft is statically unstable, this value is 0.6 of the controllability region boundary - it helps to stay reliable on unstable planes.
 * _max\min input v_ - equilibrium angular velocities on max\min input aoa flight regimes.
@@ -253,6 +289,7 @@ Short GUI description:
 * _desired v_ - desired angular velocity, not yet processed by moderation.
 
 ### Roll angular velocity controllers
+
 Model-reference controller, that perform roll angular velocity control and wing leveling. Input: [-1, 1] user input or desired angular velocity. Output: desired angular acceleration, passed to angular acceleration controller.
 
 Precision mode (CAPS LOCK) divides input by the factor of 3 to provide more precise control, or to aid with control on high physical warp regimes.
@@ -265,9 +302,11 @@ Short GUI description (except identical from previous module):
 * _snapping Kp_ - snapping speed gain. Default avlue - 0.25. Larger values seem to be too agressive, too large oscillate.
 
 ### AoA and Sideslip controllers
+
 Model-reference controllers with self-explanatory names. Input: [-1, 1] user input or desired AoA. Output: desired angular velocity. Both require respective angular velocity controllers to have AoA moderation on, because it uses respective angular velocity controller limitation values as governers.
 
 Short GUI description:
+
 * _AoA_ - respective angle of attack in radians.
 * _desired aoa_ - processed by controller input in radians.
 * _output v_ - controller output.
@@ -280,6 +319,7 @@ Short GUI description:
 * _cubic mode_ - true if controller is now in cubic mode.
 
 ### Prograde thrust controller
+
 Hybrid model-reference or PID controller. Input: desired surface velocity. Output: throttle. Can be switched to PID control and manually tuned, if user is not satisfied with it's performance.
 
 Short GUI description:
@@ -310,6 +350,7 @@ Hotkeys:
 Detailed installation instructions are now on its own file (see the [In a Hurry](#in-a-hurry) section) and on the distribution file.
 
 ### Licensing
+
 This work is licensewd under the [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.txt). See [here](./LICENSE)
 
 + You are free to:
@@ -322,7 +363,7 @@ This work is licensewd under the [GPL 3.0](https://www.gnu.org/licenses/gpl-3.0.
 	- You don't impersonate the authors, neither redistribute a derivative that could be misrepresented as theirs.
 	- You credit the author and republish the copyright notices on your works where the code is used.
 	- You relicense (and fully comply) your works using GPL 3.0
-		- or, at your option, any later version 
+		- Please note that upgrading the license to GPLv3 **IS NOT ALLOWED** for this work, as this author **DID NOT** added the "or (at your option) any later version" on the license.
 	- You don't mix your work with GPL incompatible works.
 
 See [NOTICE](./NOTICE) for further copyright and trademarks notices.
@@ -330,9 +371,10 @@ See [NOTICE](./NOTICE) for further copyright and trademarks notices.
 
 ### Contributors
 
-* radistmorse (aka Morse on KSP forums) - Neo-GUI design and implementation.
+* radistmorse (aka Morse on KSP forum) - Neo-GUI design and implementation.
 * CraigCottingham - Cruise flight and speed control GUI refactoring, coordinate input to waypoint mode.
 * Hotel26 - usability fixes for old-GUI Cruise flight waypoint control.
+* Boop from KSP forum - vessel.LandedOrSplashed bug squasher.
 
 
 ## UPSTREAM
