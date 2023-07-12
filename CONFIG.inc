@@ -6,7 +6,7 @@ TARGETDIR="net.lisias.ksp/$PACKAGE"
 TARGETBINDIR="$TARGETDIR/Plugins"
 PROJECTSDIR="$PACKAGE/"
 
-DLLS="AtmosphereAutopilot AtmosphereAutopilot.UI"
+DLLS="AtmosphereAutopilot AtmosphereAutopilot180 AtmosphereAutopilot.UI"
 PD_DLLS=""
 declare -A PD_SUB_RULES=( )
 PD_SUB_DLLS=`{ for K in "${!PD_SUB_RULES[@]}"; do echo $(basename ${PD_SUB_RULES[$K]}); done } | sort -u | tr '\n' ' '`
