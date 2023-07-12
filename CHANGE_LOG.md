@@ -1,5 +1,12 @@
 # AtmosphereAutopilot /L Unleashed :: Change Log
 
+* 2023-0711: 1.6.1.1 (LisiasT) for KSP >= 1.3.1
+	+ Catches up with upstream:
+		- 1.6.1
+			- Add FPA (flight-path angle) vertical speed mode for Cruise Flight controller.
+			- Merged https://github.com/Boris-Barboris/AtmosphereAutopilot/pull/39
+	+ Add's a pretty awkward but still effective support for KSP >= 1.8 by distributing two DLLs on the zip (user should manually remove the undesired one)
+		+ See [INSTALL](https://github.com/net-lisias-kspu/AtmosphereAutopilot/blob/master/INSTALL.md) for details. 
 * 2023-0709: 1.6.1 (BorisBarboris) for KSP 1.12
 	+ Add FPA (flight-path angle) vertical speed mode for Cruise Flight controller.
 	+ Handle input errors in GUI text fields better.
